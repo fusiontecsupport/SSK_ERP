@@ -175,6 +175,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label class="control-label">Material Type <span class="req">*</span></label>
+                            @Html.DropDownListFor(m => m.MTRLTID, ViewBag.MTRLTID as IEnumerable<SelectListItem>, new { @class = "form-control", @id = "ddlMaterialType" })
+                            @Html.ValidationMessageFor(m => m.MTRLTID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label class="control-label">Status</label>
                             @Html.DropDownListFor(model => model.DISPSTATUS, ViewBag.DISPSTATUS as List<SelectListItem>, new { @class = "form-control", @id = "statusDropdown" })
                         </div>
@@ -211,6 +218,7 @@
                 var isValid = true;
                 var code = $('#i_MTRLGCODE').val().trim();
                 var desc = $('#i_MTRLGDESC').val().trim();
+                var typeId = $('#ddlMaterialType').val();
                 
                 // Reset previous validation states
                 $('.form-control').removeClass('is-invalid');
@@ -222,6 +230,11 @@
                 
                 if (!desc) {
                     $('#i_MTRLGDESC').addClass('is-invalid');
+                    isValid = false;
+                }
+
+                if (!typeId || typeId === '' || typeId === '0') {
+                    $('#ddlMaterialType').addClass('is-invalid');
                     isValid = false;
                 }
                 
@@ -248,7 +261,7 @@
             });
             
             // Real-time validation feedback
-            $('#i_MTRLGCODE, #i_MTRLGDESC').on('input blur', function() {
+            $('#i_MTRLGCODE, #i_MTRLGDESC, #ddlMaterialType').on('input change blur', function() {
                 var $this = $(this);
                 if ($this.val().trim()) {
                     $this.removeClass('is-invalid');

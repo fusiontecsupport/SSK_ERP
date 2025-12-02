@@ -66,6 +66,54 @@ namespace SSK_ERP
                 namespaces: new[] { "SSK_ERP.Controllers.Masters" }
             );
 
+            // Explicit route for RegionMaster under Masters namespace
+            routes.MapRoute(
+                name: "RegionMaster",
+                url: "RegionMaster/{action}/{id}",
+                defaults: new { controller = "RegionMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
+            // Explicit route for HSNCodeMaster under Masters namespace
+            routes.MapRoute(
+                name: "HSNCodeMaster",
+                url: "HSNCodeMaster/{action}/{id}",
+                defaults: new { controller = "HSNCodeMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
+            // Explicit route for CostFactorMaster under Masters namespace
+            routes.MapRoute(
+                name: "CostFactorMaster",
+                url: "CostFactorMaster/{action}/{id}",
+                defaults: new { controller = "CostFactorMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
+            // Explicit route for MaterialTypeMaster under Masters namespace
+            routes.MapRoute(
+                name: "MaterialTypeMaster",
+                url: "MaterialTypeMaster/{action}/{id}",
+                defaults: new { controller = "MaterialTypeMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
+            // Explicit route for MaterialGroupMaster under Masters namespace
+            routes.MapRoute(
+                name: "MaterialGroupMaster",
+                url: "MaterialGroupMaster/{action}/{id}",
+                defaults: new { controller = "MaterialGroupMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
+            // Explicit route for MaterialMaster under Masters namespace
+            routes.MapRoute(
+                name: "MaterialMaster",
+                url: "MaterialMaster/{action}/{id}",
+                defaults: new { controller = "MaterialMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
             // Explicit route for CustomerMaster under Masters namespace
             routes.MapRoute(
                 name: "CustomerMaster",

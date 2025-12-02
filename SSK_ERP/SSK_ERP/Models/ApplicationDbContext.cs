@@ -22,6 +22,9 @@ namespace SSK_ERP.Models
         public DbSet<UnitMaster> UnitMasters { get; set; }
         public DbSet<HSNCodeMaster> HSNCodeMasters { get; set; }
         public DbSet<CostFactorMaster> CostFactorMasters { get; set; }
+        public DbSet<MaterialTypeMaster> MaterialTypeMasters { get; set; }
+        public DbSet<MaterialGroupMaster> MaterialGroupMasters { get; set; }
+        public DbSet<MaterialMaster> MaterialMasters { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         new public virtual IDbSet<ApplicationRole> Roles { get; set; }
         public virtual IDbSet<Group> Groups { get; set; }
@@ -66,6 +69,9 @@ namespace SSK_ERP.Models
             
             // Configure CostFactorMaster decimal precision for CFEXPR field
             modelBuilder.Entity<CostFactorMaster>().Property(c => c.CFEXPR).HasPrecision(18, 3);
+
+            // Configure MaterialMaster decimal precision
+            modelBuilder.Entity<MaterialMaster>().Property(m => m.MTRLPRFT).HasPrecision(18, 2);
 
             // Keep this:
             modelBuilder.Entity<IdentityUser>().ToTable("AspNetUsers");

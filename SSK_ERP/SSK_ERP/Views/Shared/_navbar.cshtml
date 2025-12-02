@@ -750,78 +750,87 @@
                                                     </a>
                                                 </li>
                                             }
+                                            @if (User.IsInRole("RegionMasterIndex"))
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" href="@Url.Action("Index", "RegionMaster")"
+                                                       data-role="RegionMaster" data-menugroupid="4" data-menuorder="10">
+                                                        <i class="fa-solid fa-globe"></i> Region Master
+                                                    </a>
+                                                </li>
+                                            }
                                             
                                             <li class="dropdown-divider"></li>
                                             
                                             <li class="dropdown-header">
                                                 <i class="fa fa-info-circle"></i> Item Details
                                             </li>
-                                            <!-- Unit - Order: 10, GroupId: 4 -->
+                                            <!-- Unit - Order: 11, GroupId: 4 -->
                                             @if (User.IsInRole("UnitMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "UnitMaster")"
-                                                       data-role="UnitMaster" data-menugroupid="4" data-menuorder="10">
+                                                       data-role="UnitMaster" data-menugroupid="4" data-menuorder="11">
                                                         <i class="fa fa-balance-scale"></i> Unit
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Material - Order: 11, GroupId: 4 -->
+                                            <!-- Material - Order: 12, GroupId: 4 -->
                                             @if (User.IsInRole("MaterialMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "MaterialMaster")"
-                                                       data-role="MaterialMaster" data-menugroupid="4" data-menuorder="11">
+                                                       data-role="MaterialMaster" data-menugroupid="4" data-menuorder="12">
                                                         <i class="fa-solid fa-atom"></i> Material
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Material Type - Order: 12, GroupId: 4 -->
+                                            <!-- Material Type - Order: 13, GroupId: 4 -->
                                             @if (User.IsInRole("MaterialTypeMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "MaterialTypeMaster")"
-                                                       data-role="MaterialTypeMaster" data-menugroupid="4" data-menuorder="12">
+                                                       data-role="MaterialTypeMaster" data-menugroupid="4" data-menuorder="13">
                                                         <i class="fa fa-cubes"></i> Material Type
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Material Group - Order: 13, GroupId: 4 -->
+                                            <!-- Material Group - Order: 14, GroupId: 4 -->
                                             @if (User.IsInRole("MaterialGroupMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "MaterialGroupMaster")"
-                                                       data-role="MaterialGroupMaster" data-menugroupid="4" data-menuorder="13">
+                                                       data-role="MaterialGroupMaster" data-menugroupid="4" data-menuorder="14">
                                                         <i class="fa fa-layer-group"></i> Material Group
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Packing Master - Order: 14, GroupId: 4 -->
+                                            <!-- Packing Master - Order: 15, GroupId: 4 -->
                                             @if (User.IsInRole("PackingMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "PackingMaster")"
-                                                       data-role="PackingMaster" data-menugroupid="4" data-menuorder="14">
+                                                       data-role="PackingMaster" data-menugroupid="4" data-menuorder="15">
                                                         <i class="fa fa-box"></i> Packing
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Packing Type Master - Order: 15, GroupId: 4 -->
+                                            <!-- Packing Type Master - Order: 16, GroupId: 4 -->
                                             @if (User.IsInRole("PackingTypeMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "PackingTypeMaster")"
-                                                       data-role="PackingTypeMaster" data-menugroupid="4" data-menuorder="15">
+                                                       data-role="PackingTypeMaster" data-menugroupid="4" data-menuorder="16">
                                                         <i class="fa fa-cube"></i> Packing Type
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Laboratory Master - Order: 16, GroupId: 4 -->
+                                            <!-- Laboratory Master - Order: 17, GroupId: 4 -->
                                             @if (User.IsInRole("LaboratoryMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "LaboratoryMaster")"
-                                                       data-role="LaboratoryMaster" data-menugroupid="4" data-menuorder="16">
+                                                       data-role="LaboratoryMaster" data-menugroupid="4" data-menuorder="17">
                                                         <i class="fa fa-flask"></i> Laboratory
                                                     </a>
                                                 </li>

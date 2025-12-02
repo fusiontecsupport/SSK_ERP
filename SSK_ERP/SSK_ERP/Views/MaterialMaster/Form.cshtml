@@ -1,4 +1,4 @@
-@model KVM_ERP.Models.MaterialMaster
+@model SSK_ERP.Models.MaterialMaster
 @{
     ViewBag.Title = "Material Master";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -182,9 +182,9 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="control-label">Type <span class="req">*</span></label>
-                            @Html.DropDownListFor(model => model.MTRLTID, ViewBag.MTRLTID as List<SelectListItem>, new { @class = "form-control", @id = "materialTypeDropdown" })
-                            @Html.ValidationMessageFor(m => m.MTRLTID, "", new { @class = "text-danger" })
+                            <label class="control-label">Unit <span class="req">*</span></label>
+                            @Html.DropDownListFor(model => model.UNITID, ViewBag.UNITID as List<SelectListItem>, new { @class = "form-control", @id = "unitDropdown" })
+                            @Html.ValidationMessageFor(m => m.UNITID, "", new { @class = "text-danger" })
                         </div>
                     </div>
                 </div>
@@ -192,9 +192,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="control-label">Unit <span class="req">*</span></label>
-                            @Html.DropDownListFor(model => model.UNITID, ViewBag.UNITID as List<SelectListItem>, new { @class = "form-control", @id = "unitDropdown" })
-                            @Html.ValidationMessageFor(m => m.UNITID, "", new { @class = "text-danger" })
+                            <label class="control-label">Profit</label>
+                            @Html.TextBoxFor(m => m.MTRLPRFT, new { @class = "form-control", @placeholder = "Enter profit", @id = "i_MTRLPRFT", @autocomplete = "off" })
+                            @Html.ValidationMessageFor(m => m.MTRLPRFT, "", new { @class = "text-danger" })
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -246,7 +246,6 @@
                 var code = $('#i_MTRLCODE').val().trim();
                 var desc = $('#i_MTRLDESC').val().trim();
                 var materialGroup = $('#materialGroupDropdown').val();
-                var materialType = $('#materialTypeDropdown').val();
                 var unit = $('#unitDropdown').val();
                 var hsnCode = $('#hsnCodeDropdown').val();
                 
@@ -265,11 +264,6 @@
                 
                 if (!materialGroup || materialGroup === '') {
                     $('#materialGroupDropdown').addClass('is-invalid');
-                    isValid = false;
-                }
-                
-                if (!materialType || materialType === '') {
-                    $('#materialTypeDropdown').addClass('is-invalid');
                     isValid = false;
                 }
                 
@@ -306,7 +300,7 @@
             });
             
             // Real-time validation feedback
-            $('#i_MTRLCODE, #i_MTRLDESC, #materialGroupDropdown, #materialTypeDropdown, #unitDropdown, #hsnCodeDropdown').on('input blur change', function() {
+            $('#i_MTRLCODE, #i_MTRLDESC, #materialGroupDropdown, #unitDropdown, #hsnCodeDropdown').on('input blur change', function() {
                 var $this = $(this);
                 if ($this.val().trim()) {
                     $this.removeClass('is-invalid');

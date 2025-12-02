@@ -175,13 +175,6 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="control-label">Display Order <span class="req">*</span></label>
-                            @Html.TextBoxFor(m => m.DISPORDER, new { @class = "form-control", @placeholder = "Enter display order", @id = "i_DISPORDER", @type = "number", @min = "1", @autocomplete = "off" })
-                            @Html.ValidationMessageFor(m => m.DISPORDER, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
                             <label class="control-label">Status</label>
                             @Html.DropDownListFor(model => model.DISPSTATUS, ViewBag.DISPSTATUS as List<SelectListItem>, new { @class = "form-control", @id = "statusDropdown" })
                         </div>
@@ -218,7 +211,6 @@
                 var isValid = true;
                 var code = $('#i_MTRLTCODE').val().trim();
                 var desc = $('#i_MTRLTDESC').val().trim();
-                var order = $('#i_DISPORDER').val().trim();
                 
                 // Reset previous validation states
                 $('.form-control').removeClass('is-invalid');
@@ -230,11 +222,6 @@
                 
                 if (!desc) {
                     $('#i_MTRLTDESC').addClass('is-invalid');
-                    isValid = false;
-                }
-                
-                if (!order || parseInt(order) < 1) {
-                    $('#i_DISPORDER').addClass('is-invalid');
                     isValid = false;
                 }
                 
@@ -261,7 +248,7 @@
             });
             
             // Real-time validation feedback
-            $('#i_MTRLTCODE, #i_MTRLTDESC, #i_DISPORDER').on('input blur', function() {
+            $('#i_MTRLTCODE, #i_MTRLTDESC').on('input blur', function() {
                 var $this = $(this);
                 if ($this.val().trim()) {
                     $this.removeClass('is-invalid');
@@ -282,14 +269,6 @@
                     this.value = value.toLowerCase().replace(/\b\w/g, function(l) {
                         return l.toUpperCase();
                     });
-                }
-            });
-            
-            // Ensure display order is positive number
-            $('#i_DISPORDER').on('input', function() {
-                var value = parseInt(this.value);
-                if (isNaN(value) || value < 1) {
-                    this.value = '';
                 }
             });
         });

@@ -168,7 +168,6 @@
                     <tr>
                         <th>Code</th>
                         <th>Description</th>
-                        <th>Display Order</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -177,7 +176,6 @@
                     <tr>
                         <th>Code</th>
                         <th>Description</th>
-                        <th>Display Order</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -234,12 +232,6 @@
                     { data: "MTRLTCODE" },
                     { data: "MTRLTDESC" },
                     { 
-                        data: "DISPORDER",
-                        render: function (data, type, row) {
-                            return '<span class="badge badge-info">' + data + '</span>';
-                        }
-                    },
-                    { 
                         data: "DISPSTATUS",
                         render: function (data, type, row) {
                             return data == 0 ? '<span class="badge badge-success">Enabled</span>' : '<span class="badge badge-danger">Disabled</span>';
@@ -256,7 +248,7 @@
                 dom: '<"row mb-3"<"col-md-6"l><"col-md-6"f>>rt<"row mt-3"<"col-md-6"i><"col-md-6"p>>',
                 responsive: true,
                 pageLength: 25,
-                order: [[2, 'asc'], [0, 'asc']], // Order by Display Order first, then by Code
+                order: [[0, 'asc']], // Order by Code
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search..."

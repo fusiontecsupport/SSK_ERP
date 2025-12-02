@@ -202,6 +202,7 @@
     <!-- <Compile Include="Controllers\Masters\EventMasterController.cs" /> -->
     <!-- <Compile Include="Controllers\Masters\GalleryMasterController.cs" /> -->
     <Compile Include="Controllers\Masters\StateMasterController.cs" />
+    <Compile Include="Controllers\Masters\RegionMasterController.cs" />
     <!-- Excluded per cleanup -->
     <!-- <Compile Include="Controllers\MinutesOfMeetingController.cs" /> -->
     <!-- <Compile Include="Controllers\ContentController.cs" /> -->
@@ -213,6 +214,11 @@
     <Compile Include="Controllers\Masters\SupplierMasterController.cs" />
     <Compile Include="Controllers\Masters\CurrencyMasterController.cs" />
     <Compile Include="Controllers\Masters\UnitMasterController.cs" />
+    <Compile Include="Controllers\Masters\HSNCodeMasterController.cs" />
+    <Compile Include="Controllers\Masters\CostFactorMasterController.cs" />
+    <Compile Include="Controllers\Masters\MaterialTypeMasterController.cs" />
+    <Compile Include="Controllers\Masters\MaterialGroupMasterController.cs" />
+    <Compile Include="Controllers\Masters\MaterialMasterController.cs" />
     <Compile Include="Controllers\NavbarController.cs" />
     <!-- Excluded per cleanup -->
     <!-- <Compile Include="Controllers\ProfileMasterController.cs" /> -->
@@ -319,6 +325,9 @@
     <Compile Include="Models\UnitMaster.cs" />
     <Compile Include="Models\HSNCodeMaster.cs" />
     <Compile Include="Models\CostFactorMaster.cs" />
+    <Compile Include="Models\MaterialTypeMaster.cs" />
+    <Compile Include="Models\MaterialGroupMaster.cs" />
+    <Compile Include="Models\MaterialMaster.cs" />
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\IdentityManager.cs" />
