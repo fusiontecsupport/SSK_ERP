@@ -163,6 +163,7 @@
                     <tr>
                         <th>Code</th>
                         <th>Description</th>
+                        <th>Region</th>
                         <th>Type</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -172,6 +173,7 @@
                     <tr>
                         <th>Code</th>
                         <th>Description</th>
+                        <th>Region</th>
                         <th>Type</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -208,7 +210,20 @@
                 columns: [
                     { data: "STATECODE" },
                     { data: "STATEDESC" },
-                    { data: "STATETYPE" },
+                    { data: "REGION" },
+                    {
+                        data: "STATETYPE",
+                        render: function (data, type, row) {
+                            // Accept both numeric (0/1) and text
+                            if (data === 0 || data === "0" || data === "Local" || data === "local") {
+                                return "Local";
+                            }
+                            if (data === 1 || data === "1" || data === "InterState" || data === "interstate" || data === "Inter State") {
+                                return "InterState";
+                            }
+                            return data || "";
+                        }
+                    },
                     { 
                         data: "DISPSTATUS",
                         render: function (data, type, row) {

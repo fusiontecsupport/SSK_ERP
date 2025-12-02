@@ -1,4 +1,4 @@
-@model KVM_ERP.Models.StateMaster
+@model SSK_ERP.Models.StateMaster
 @{
     ViewBag.Title = "State Master";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -162,11 +162,21 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label class="control-label">Region <span class="req">*</span></label>
+                            @Html.DropDownListFor(m => m.SREGNID, ViewBag.REGNID as SelectList, "-- Select Region --", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.SREGNID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label class="control-label">@Html.DisplayNameFor(m => m.STATETYPE) <span class="req">*</span></label>
                             @Html.DropDownListFor(m => m.STATETYPE, ViewBag.STATETYPE as SelectList, "-- Select State Type --", new { @class = "form-control" })
                             @Html.ValidationMessageFor(m => m.STATETYPE, "", new { @class = "text-danger" })
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             @Html.LabelFor(m => m.DISPSTATUS, new { @class = "control-label" })
