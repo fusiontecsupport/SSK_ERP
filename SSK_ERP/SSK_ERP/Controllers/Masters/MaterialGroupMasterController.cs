@@ -33,8 +33,13 @@ namespace SSK_ERP.Controllers.Masters
             }
             else
             {
-                // Edit existing record
-                tab = db.MaterialGroupMasters.Find(id);
+                // Edit existing record - use raw SQL like MaterialMaster so MTRLTID is correctly loaded
+                tab = db.Database.SqlQuery<MaterialGroupMaster>(
+                    @"SELECT MTRLGID, MTRLTID, MTRLGDESC, MTRLGCODE, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE 
+                      FROM MATERIALGROUPMASTER WHERE MTRLGID = @p0",
+                    id
+                ).FirstOrDefault();
+
                 if (tab == null)
                 {
                     ViewBag.msg = "<div class='alert alert-danger'>Record not found!</div>";
@@ -160,7 +165,7 @@ namespace SSK_ERP.Controllers.Masters
 
             ViewBag.DISPSTATUS = new SelectList(statusList, "Value", "Text", tab.DISPSTATUS.ToString());
 
-            // Material Type dropdown (only enabled items)
+            // Material Type dropdown (only enabled items), same pattern as MaterialMaster
             var typeItems = new List<SelectListItem>
             {
                 new SelectListItem { Value = "", Text = "-- Select Material Type --" }
@@ -200,6 +205,7 @@ namespace SSK_ERP.Controllers.Masters
                 System.Diagnostics.Debug.WriteLine("MaterialGroupMaster PopulateDropdowns MaterialType error: " + ex.Message);
             }
 
+            // Selected value: follow MaterialMaster pattern so edit shows saved type
             var selectedType = tab.MTRLTID > 0 ? tab.MTRLTID.ToString() : string.Empty;
             ViewBag.MTRLTID = new SelectList(typeItems, "Value", "Text", selectedType);
         }
@@ -222,6 +228,7 @@ namespace SSK_ERP.Controllers.Masters
                     m.MTRLGID,
                     m.MTRLGCODE,
                     m.MTRLGDESC,
+                    MaterialTypeName = GetMaterialTypeName(m.MTRLTID),
                     m.DISPSTATUS
                 }).ToList();
 
@@ -238,6 +245,24 @@ namespace SSK_ERP.Controllers.Masters
                     error = ex.Message,
                     success = false
                 }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        private string GetMaterialTypeName(int mtrltid)
+        {
+            try
+            {
+                var result = db.Database.SqlQuery<string>(
+                    "SELECT MTRLTDESC FROM MATERIALTYPEMASTER WHERE MTRLTID = @p0",
+                    mtrltid
+                ).FirstOrDefault();
+
+                return result ?? "N/A";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetMaterialTypeName Error: {ex.Message}");
+                return "N/A";
             }
         }
 
