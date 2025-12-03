@@ -202,6 +202,13 @@
     @Scripts.Render("~/bundles/jqueryval")
     <script>
         $(document).ready(function() {
+            console.log('State Form - Model STATEID:', '@Model.STATEID');
+            console.log('State Form - Model STATETYPE:', '@Model.STATETYPE');
+            console.log('State Form - initial STATETYPE dropdown value:', $('#STATETYPE').val());
+
+            // Ensure State Type dropdown reflects model value in edit mode
+            $('#STATETYPE').val('@Model.STATETYPE');
+
             // Auto-format state code to uppercase
             $('#STATECODE').on('input', function() {
                 this.value = this.value.toUpperCase();
