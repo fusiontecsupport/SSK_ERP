@@ -35,10 +35,42 @@ namespace SSK_ERP.Controllers.Masters
                                                 param.iDisplayStart,
                                                 param.iDisplayStart + param.iDisplayLength,
                                                 totalRowsCount,
-                                                filteredRowsCount);
+                                                filteredRowsCount).ToList();
+
+                // Build Region lookup so we can show Region name in the grid
+                var stateIds = data
+                    .Where(d => d.STATEID.HasValue)
+                    .Select(d => d.STATEID.Value)
+                    .Distinct()
+                    .ToList();
+
+                var regionJoin = context.StateMasters
+                    .Where(s => stateIds.Contains(s.STATEID))
+                    .Join(context.RegionMasters,
+                          s => s.SREGNID,
+                          r => r.REGNID,
+                          (s, r) => new { s.STATEID, r.REGNDESC })
+                    .ToList();
+
+                var regionLookup = regionJoin
+                    .GroupBy(x => x.STATEID)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.FirstOrDefault() != null ? g.FirstOrDefault().REGNDESC : string.Empty
+                    );
 
                 //var aaData = data.Select(d => new string[] { d.STATECODE, d.STATEDESC, d.STATETYPE, d.DISPSTATUS, d.STATEID.ToString() }).ToArray();
-                var aaData = data.Select(d => new { STATECODE = d.STATECODE, STATEDESC = d.STATEDESC, STATETYPE = d.STATETYPE ?? "0", DISPSTATUS = d.DISPSTATUS.ToString(), STATEID = d.STATEID.ToString() }).ToArray();
+                var aaData = data.Select(d => new
+                {
+                    STATECODE = d.STATECODE,
+                    STATEDESC = d.STATEDESC,
+                    REGION = d.STATEID.HasValue && regionLookup.ContainsKey(d.STATEID.Value)
+                                ? regionLookup[d.STATEID.Value]
+                                : string.Empty,
+                    STATETYPE = d.STATETYPE ?? "0",
+                    DISPSTATUS = d.DISPSTATUS,
+                    STATEID = d.STATEID.HasValue ? d.STATEID.Value.ToString() : "0"
+                }).ToArray();
                 return Json(new
                 {
                     //sEcho = param.sEcho,
@@ -54,6 +86,7 @@ namespace SSK_ERP.Controllers.Masters
         {
             StateMaster tab = new StateMaster();
             tab.STATEID = 0;
+            tab.STATETYPE = 0;
 
             // Define dropdown lists at method level so they're accessible everywhere
             var statusList = new List<SelectListItem>
@@ -102,7 +135,14 @@ namespace SSK_ERP.Controllers.Masters
                     selectedStateTypeValue = "1"; // Keep as Interstate
                 
                 System.Diagnostics.Debug.WriteLine($"  Selected values: DISPSTATUS='{selectedStatusValue}', STATETYPE='{selectedStateTypeValue}' (Original: {tab.STATETYPE})");
-                
+
+                // Ensure model property reflects the selected value so DropDownListFor can bind correctly
+                short parsedStateType;
+                if (short.TryParse(selectedStateTypeValue, out parsedStateType))
+                {
+                    tab.STATETYPE = parsedStateType;
+                }
+
                 // Create dropdowns using SelectList for proper selection
                 ViewBag.DISPSTATUS = new SelectList(statusList, "Value", "Text", selectedStatusValue);
                 ViewBag.STATETYPE = new SelectList(stateTypeList, "Value", "Text", selectedStateTypeValue);
