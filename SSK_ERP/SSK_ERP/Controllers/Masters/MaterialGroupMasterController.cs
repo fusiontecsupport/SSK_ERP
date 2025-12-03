@@ -190,12 +190,15 @@ namespace SSK_ERP.Controllers.Masters
                         }
                     }
 
+                    var selectedType = tab.MTRLTID > 0 ? tab.MTRLTID.ToString() : string.Empty;
+
                     foreach (var t in types.OrderBy(t => t.MTRLTDESC))
                     {
                         typeItems.Add(new SelectListItem
                         {
                             Value = t.MTRLTID.ToString(),
-                            Text = t.MTRLTDESC
+                            Text = t.MTRLTDESC,
+                            Selected = (t.MTRLTID.ToString() == selectedType)
                         });
                     }
                 }
@@ -205,9 +208,8 @@ namespace SSK_ERP.Controllers.Masters
                 System.Diagnostics.Debug.WriteLine("MaterialGroupMaster PopulateDropdowns MaterialType error: " + ex.Message);
             }
 
-            // Selected value: follow MaterialMaster pattern so edit shows saved type
-            var selectedType = tab.MTRLTID > 0 ? tab.MTRLTID.ToString() : string.Empty;
-            ViewBag.MTRLTID = new SelectList(typeItems, "Value", "Text", selectedType);
+            // Use the prepared list with Selected flag so edit mode shows saved material type
+            ViewBag.MTRLTID = typeItems;
         }
 
         // GET: MaterialGroupMaster/GetAjaxData

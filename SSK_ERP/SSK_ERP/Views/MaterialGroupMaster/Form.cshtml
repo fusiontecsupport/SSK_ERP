@@ -207,8 +207,13 @@
         $(document).ready(function () {
             // Debug: Let's see what model values we have
             console.log('Model MTRLGID:', '@Model.MTRLGID');
+            console.log('Model MTRLTID:', '@Model.MTRLTID');
             console.log('Model DISPSTATUS:', '@Model.DISPSTATUS');
-            console.log('Initial dropdown value:', $('#statusDropdown').val());
+            console.log('Initial status dropdown value:', $('#statusDropdown').val());
+            console.log('Initial material type dropdown value:', $('#ddlMaterialType').val());
+
+            // Ensure Material Type dropdown reflects model value in edit mode
+            $('#ddlMaterialType').val('@Model.MTRLTID');
             
             // Focus on first input
             $('#i_MTRLGCODE').focus();
