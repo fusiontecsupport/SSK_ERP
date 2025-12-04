@@ -7,7 +7,9 @@
         r.RoleName.Contains("RawMaterialInvoice") ||     // RawMaterialInvoice* (old name)
         r.RoleName.Contains("StockView") || 
         r.RoleName.Contains("PurchaseInvoice") || 
-        r.RoleName.Contains("Print")
+        r.RoleName.Contains("Print") ||
+        r.RoleName.Contains("SalesOrder") ||
+        r.RoleName.Contains("PurchaseOrder")
     ).ToList();
     
     // Master roles: Everything else (not in transactionRoles)
