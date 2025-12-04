@@ -1,0 +1,128 @@
+@{
+    ViewBag.Title = "Purchase Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .so-main-container {
+        background: white;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .so-content-wrapper {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    }
+
+    .so-header-section {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .so-header-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .so-add-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4);
+    }
+
+    .so-add-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(32, 201, 151, 0.6);
+        color: white;
+    }
+
+    .so-table-container {
+        padding: 25px 30px;
+        background: white;
+    }
+
+    #purchaseOrderTable {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #purchaseOrderTable thead th {
+        background: #7f88e9;
+        color: white;
+        font-weight: 600;
+        padding: 12px 10px;
+        text-align: center;
+        border: none;
+        font-size: 14px;
+    }
+
+    #purchaseOrderTable tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 13px;
+    }
+
+    #purchaseOrderTable tbody tr:hover {
+        background-color: #f8f9ff;
+    }
+</style>
+
+<div class="so-main-container">
+    <div class="so-content-wrapper">
+        <div class="so-header-section">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="so-header-title">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    Purchase Order
+                </h1>
+                <a href="@Url.Action("Form", "PurchaseOrder", new { area = "" })" class="btn so-add-btn">
+                    <i class="fa fa-plus-circle"></i> Add
+                </a>
+            </div>
+        </div>
+
+        <div class="so-table-container">
+            <table id="purchaseOrderTable" class="table table-striped table-bordered" width="100%">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Number</th>
+                        <th>PO No.</th>
+                        <th>PO Date</th>
+                        <th>Supplier Name</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" class="text-muted text-center">
+                            Design only – data binding can be added later.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
