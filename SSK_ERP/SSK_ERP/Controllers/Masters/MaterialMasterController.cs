@@ -11,6 +11,19 @@ namespace SSK_ERP.Controllers.Masters
     {
         private readonly ApplicationDbContext db = new ApplicationDbContext();
 
+        // Lightweight DTO for MaterialMaster index data loaded via stored procedure
+        private class MaterialMasterIndexRow
+        {
+            public int MTRLID { get; set; }
+            public string MTRLCODE { get; set; }
+            public string MTRLDESC { get; set; }
+            public string GroupName { get; set; }
+            public string UnitName { get; set; }
+            public string HSNName { get; set; }
+            public decimal MTRLPRFT { get; set; }
+            public short DISPSTATUS { get; set; }
+        }
+
         // GET: MaterialMaster
         [Authorize(Roles = "MaterialMasterIndex")]
         public ActionResult Index()
@@ -352,16 +365,19 @@ namespace SSK_ERP.Controllers.Masters
         {
             try
             {
-                var materials = db.MaterialMasters.OrderBy(m => m.MTRLCODE).ToList();
+                // Load index data via stored procedure for better performance
+                var materials = db.Database.SqlQuery<MaterialMasterIndexRow>(
+                    "EXEC SP_MATERIALMASTER_INDEX"
+                ).ToList();
 
                 var result = materials.Select(m => new
                 {
                     m.MTRLID,
                     MTRLCODE = m.MTRLCODE ?? string.Empty,
                     MTRLDESC = m.MTRLDESC ?? string.Empty,
-                    GroupName = GetMaterialGroupName(m.MTRLGID),
-                    UnitName = GetUnitName(m.UNITID),
-                    HSNName = GetHSNCodeName(m.HSNID),
+                    GroupName = m.GroupName ?? "N/A",
+                    UnitName = m.UnitName ?? "N/A",
+                    HSNName = m.HSNName ?? "N/A",
                     MTRLPRFT = m.MTRLPRFT,
                     DISPSTATUS = m.DISPSTATUS == 0 ? "Enabled" : "Disabled",
                     StatusBadge = m.DISPSTATUS == 0
@@ -462,11 +478,12 @@ namespace SSK_ERP.Controllers.Masters
                     return Json("Access Denied: You do not have permission to delete records. Please contact your administrator.");
                 }
 
-                var material = db.Database.SqlQuery<MaterialMaster>(
-                    "SELECT MTRLID FROM MATERIALMASTER WHERE MTRLID = @p0", id
+                // Check if material exists without mapping to full MaterialMaster (avoids data reader column mismatch)
+                var materialCount = db.Database.SqlQuery<int>(
+                    "SELECT COUNT(1) FROM MATERIALMASTER WHERE MTRLID = @p0", id
                 ).FirstOrDefault();
 
-                if (material == null)
+                if (materialCount <= 0)
                 {
                     return Json("Material not found");
                 }

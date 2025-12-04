@@ -721,12 +721,15 @@
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Salesman Master -->
-                                            <!-- <li>
-                                                <a class="dropdown-item" href="@Url.Action("Index", "SalesmanMaster")">
-                                                    <i class="fa fa-user-times"></i> Salesman Master
-                                                </a>
-                                            </li> -->
+                                            @if (User.IsInRole("TransporterMasterIndex"))
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" href="@Url.Action("Index", "TransporterMaster")"
+                                                       data-role="TransporterMaster" data-menugroupid="4" data-menuorder="16">
+                                                       <i class="bi bi-airplane-engines"></i> Transporter Master
+                                                    </a>
+                                                </li>
+                                            }
                                         </ul>
                                     </div>
 

@@ -212,6 +212,7 @@
     <Compile Include="Controllers\Masters\EmployeeMasterController.cs" />
     <Compile Include="Controllers\Masters\CustomerMasterController.cs" />
     <Compile Include="Controllers\Masters\SupplierMasterController.cs" />
+    <Compile Include="Controllers\Masters\TransporterMasterController.cs" />
     <Compile Include="Controllers\Masters\CurrencyMasterController.cs" />
     <Compile Include="Controllers\Masters\UnitMasterController.cs" />
     <Compile Include="Controllers\Masters\HSNCodeMasterController.cs" />
@@ -322,6 +323,7 @@
     <Compile Include="Models\RenewalSubmitRequest.cs" />
     <Compile Include="Models\RImageMaster.cs" />
     <Compile Include="Models\SupplierMaster.cs" />
+    <Compile Include="Models\TransporterMaster.cs" />
     <Compile Include="Models\CurrencyMaster.cs" />
     <Compile Include="Models\UnitMaster.cs" />
     <Compile Include="Models\HSNCodeMaster.cs" />

@@ -40,6 +40,7 @@ namespace SSK_ERP.Models
         public virtual IDbSet<DisplayOrderMaster> displayordermasters { get; set; }
         public DbSet<EmployeeMaster> EmployeeMasters { get; set; }
         public DbSet<EmployeeLinkMaster> employeelinkmasters { get; set; }
+        public DbSet<TransporterMaster> TransporterMasters { get; set; }
         // GovernmentProof module removed
         // public DbSet<GovernmentProof> GovernmentProofs { get; set; }
         public ApplicationDbContext()

@@ -17,8 +17,8 @@ namespace SSK_ERP.Models
         [Remote("ValidateCATENAME", "Common", AdditionalFields = "i_CATENAME", ErrorMessage = "This is already used.")]
         public string CATENAME { get; set; }
 
-        [DisplayName("Display Name")]
-        [Required(ErrorMessage = "Please enter display name")]
+        [DisplayName("Tally Ledger Name")]
+        [Required(ErrorMessage = "Please enter tally ledger name")]
         public string CATEDNAME { get; set; }
 
         [DisplayName("Address 1")]
@@ -95,7 +95,7 @@ namespace SSK_ERP.Models
         [Remote("ValidateCATECODE", "Common", AdditionalFields = "i_CATECODE", ErrorMessage = "This is already used.")]
         public string CATECODE { get; set; }
 
-        [DisplayName("Credit Note")]
+        [DisplayName("Credit Period")]
         public int CATE_CRDTPRD { get; set; }
 
         // Hidden fields with default values
