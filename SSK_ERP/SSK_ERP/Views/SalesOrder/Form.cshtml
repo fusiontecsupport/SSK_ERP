@@ -313,12 +313,15 @@
     .so-tax-row-delete {
         background-color: #ef4444;
         border-color: #ef4444;
-        padding: 4px 8px;
-        border-radius: 6px;
+        padding: 0;
+        border-radius: 4px;
+        width: 6px;
+        height: 28px;
+        display: inline-block;
     }
 
     .so-tax-row-delete i {
-        display: inline-block;
+        display: none;
     }
 </style>
 
@@ -453,8 +456,8 @@
                     <thead>
                         <tr>
                             <th style="width: 60px;">S.No</th>
-                            <th style="width: 200px;">Material Group</th>
                             <th style="width: 220px;">Material</th>
+                            <th style="width: 200px;">Material Group</th>
                             <th style="width: 100px;">Qty</th>
                             <th style="width: 120px;">Rate</th>
                             <th style="width: 180px;">Amount</th>
@@ -464,13 +467,13 @@
                         <tr>
                             <td class="text-center so-row-index">1</td>
                             <td>
-                                <select class="form-control form-control-sm so-material-group">
-                                    <option value="">Select Material Group</option>
+                                <select class="form-control form-control-sm so-material">
+                                    <option value="">Select Material</option>
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control form-control-sm so-material">
-                                    <option value="">Select Material</option>
+                                <select class="form-control form-control-sm so-material-group">
+                                    <option value="">Select Material Group</option>
                                 </select>
                             </td>
                             <td>
@@ -561,16 +564,13 @@
                                             <tbody>
                                                 <tr>
                                                     <td class="text-center">
-                                                        <button type="button" class="btn btn-danger btn-sm so-tax-row-delete">
+                                                        <button type="button" class="btn btn-danger btn-sm so-tax-row-delete" title="Remove row">
                                                             <i class="fa fa-trash-o"></i>
                                                         </button>
                                                     </td>
                                                     <td>
                                                         <select class="form-control so-cost-factor">
-                                                            <option>Select Cost Factor</option>
-                                                            <option>Packing &amp; Forwarding Charges</option>
-                                                            <option>Freight</option>
-                                                            <option>Discount</option>
+                                                            <option value="">Select Cost Factor</option>
                                                         </select>
                                                     </td>
                                                     <td>
@@ -639,10 +639,76 @@
 @section scripts {
     <script type="text/javascript">
         (function ($) {
+            var soMaterialGroupMap = {};
+            var soMaterialOptionsHtml = '<option value="">Select Material</option>';
+            var soGroupOptionsHtml = '<option value="">Select Material Group</option>';
+            var soCostFactorOptionsHtml = '<option value="">Select Cost Factor</option>';
+
             function updateSoRowNumbers() {
                 $('#soDetailsBody tr').each(function (index) {
                     $(this).find('.so-row-index').text(index + 1);
                 });
+            }
+
+            function loadMaterialAndGroupData() {
+                $.getJSON('@Url.Action("GetMaterialAndGroups", "SalesOrder")')
+                    .done(function (resp) {
+                        if (!resp || resp.success === false) {
+                            console.error('Failed to load material/group data for Sales Order.', resp && resp.error);
+                            return;
+                        }
+
+                        soMaterialGroupMap = {};
+                        soMaterialOptionsHtml = '<option value="">Select Material</option>';
+                        $.each(resp.materials || [], function (idx, item) {
+                            if (!item) return;
+                            soMaterialGroupMap[item.id] = item.groupId;
+                            var name = item.name || '';
+                            soMaterialOptionsHtml += '<option value="' + item.id + '">' + name + '</option>';
+                        });
+
+                        soGroupOptionsHtml = '<option value="">Select Material Group</option>';
+                        $.each(resp.groups || [], function (idx, g) {
+                            if (!g) return;
+                            var gName = g.name || '';
+                            soGroupOptionsHtml += '<option value="' + g.id + '">' + gName + '</option>';
+                        });
+
+                        $('#soDetailsBody .so-material').each(function () {
+                            $(this).html(soMaterialOptionsHtml);
+                        });
+
+                        $('#soDetailsBody .so-material-group').each(function () {
+                            $(this).html(soGroupOptionsHtml);
+                        });
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error('Error loading material/group data:', status, error, xhr && xhr.responseText);
+                    });
+            }
+
+            function loadCostFactors() {
+                $.getJSON('@Url.Action("GetCostFactorsForSales", "SalesOrder")')
+                    .done(function (resp) {
+                        if (!resp || resp.success === false) {
+                            console.error('Failed to load cost factors for Sales Order.', resp && resp.error);
+                            return;
+                        }
+
+                        soCostFactorOptionsHtml = '<option value="">Select Cost Factor</option>';
+                        $.each(resp.items || [], function (idx, item) {
+                            if (!item) return;
+                            var name = item.name || '';
+                            soCostFactorOptionsHtml += '<option value="' + item.id + '">' + name + '</option>';
+                        });
+
+                        $('#soTaxFactorTable .so-cost-factor').each(function () {
+                            $(this).html(soCostFactorOptionsHtml);
+                        });
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error('Error loading cost factors:', status, error, xhr && xhr.responseText);
+                    });
             }
 
             $(document).on('click', '.btn-add-row', function () {
@@ -664,6 +730,19 @@
                 } else {
                     $(this).closest('tr').find('input').val('');
                     $(this).closest('tr').find('select').prop('selectedIndex', 0);
+                }
+            });
+
+            // Auto-fill material group when material changes
+            $(document).on('change', '.so-material', function () {
+                var $row = $(this).closest('tr');
+                var matId = parseInt($(this).val() || '0', 10);
+                var groupId = soMaterialGroupMap[matId];
+
+                if (groupId) {
+                    $row.find('.so-material-group').val(String(groupId));
+                } else {
+                    $row.find('.so-material-group').val('');
                 }
             });
 
@@ -783,6 +862,8 @@
 
             $(function () {
                 updateSoRowNumbers();
+                loadMaterialAndGroupData();
+                loadCostFactors();
             });
         })(jQuery);
     </script>
