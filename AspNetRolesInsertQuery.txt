@@ -1,0 +1,39 @@
+-- View Sales Order
+INSERT INTO AspNetRoles
+    (Id, Name, Description, Discriminator,
+     RMenuType, RControllerName, RMenuGroupId, RMenuGroupOrder,
+     RMenuIndex, SDPTID, RImageClassName)
+VALUES
+    (NEWID(), 'SalesOrderIndex', 'Can View Sales Order', 'ApplicationRole',
+     'Sales Order', 'SalesOrder', 2, 1,
+     'Index', 1, 'fa fa-file-invoice');
+
+-- Create Sales Order
+INSERT INTO AspNetRoles
+    (Id, Name, Description, Discriminator,
+     RMenuType, RControllerName, RMenuGroupId, RMenuGroupOrder,
+     RMenuIndex, SDPTID, RImageClassName)
+VALUES
+    (NEWID(), 'SalesOrderCreate', 'Can Create Sales Order', 'ApplicationRole',
+     'Sales Order', 'SalesOrder', 2, 1,
+     'Create', 1, 'fa fa-file-invoice');
+
+-- Edit Sales Order
+INSERT INTO AspNetRoles
+    (Id, Name, Description, Discriminator,
+     RMenuType, RControllerName, RMenuGroupId, RMenuGroupOrder,
+     RMenuIndex, SDPTID, RImageClassName)
+VALUES
+    (NEWID(), 'SalesOrderEdit', 'Can Edit Sales Order', 'ApplicationRole',
+     'Sales Order', 'SalesOrder', 2, 1,
+     'Edit', 1, 'fa fa-file-invoice');
+
+-- Delete Sales Order
+INSERT INTO AspNetRoles
+    (Id, Name, Description, Discriminator,
+     RMenuType, RControllerName, RMenuGroupId, RMenuGroupOrder,
+     RMenuIndex, SDPTID, RImageClassName)
+VALUES
+    (NEWID(), 'SalesOrderDelete', 'Can Delete Sales Order', 'ApplicationRole',
+     'Sales Order', 'SalesOrder', 2, 1,
+     'Delete', 1, 'fa fa-file-invoice');

@@ -272,25 +272,22 @@
                        3. Invoice (RawMaterialInvoice)
                     *@
                     @if (Model != null && (isAdmin || 
-                        User.IsInRole("RawMaterialIntakeIndex") || 
-                        User.IsInRole("StockViewIndex") || 
-                        User.IsInRole("SupplierStockViewIndex") ||
-                        User.IsInRole("PurchaseInvoiceIndex") ||
-                        User.IsInRole("PurchaseInvoiceApprovalIndex")))
+                        User.IsInRole("PurchaseOrderIndex") ||
+                        User.IsInRole("PurchaseInvoiceIndex")))
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="transactionDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa fa-exchange-alt"></i> Transaction
+                                <i class="bi bi-bag-heart"></i> Purchase
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="transactionDropdown">
                                 <!-- Raw Material Intake - Order: 1, GroupId: 1 -->
-                                @if (User.IsInRole("RawMaterialIntakeIndex"))
+                                @if (User.IsInRole("PurchaseOrderIndex"))
                                 {
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Index", "RawMaterialIntake")"
-                                           data-role="RawMaterialIntake" data-menugroupid="1" data-menuorder="1">
-                                            <i class="fa fa-truck-loading"></i> Raw Material Intake
+                                        <a class="dropdown-item" href="@Url.Action("Index", "PurchaseOrderIndex")"
+                                           data-role="PurchaseOrderIndex" data-menugroupid="1" data-menuorder="1">
+                                            <i class="fa fa-truck-loading"></i> Purchase Order
                                         </a>
                                     </li>
                                 }
@@ -322,16 +319,16 @@
                                 </li>
                                 *@
                                 <!-- Stock View - Order: 2, GroupId: 1 -->
-                                @if (User.IsInRole("StockViewIndex"))
+                                @if (User.IsInRole("PurchaseInvoiceIndex"))
                                 {
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Index", "StockView")"
-                                           data-role="StockView" data-menugroupid="1" data-menuorder="2">
-                                            <i class="fa fa-chart-line"></i> Item wise Stock View
+                                        <a class="dropdown-item" href="@Url.Action("Index", "PurchaseInvoiceIndex")"
+                                           data-role="PurchaseInvoiceIndex" data-menugroupid="1" data-menuorder="2">
+                                            <i class="fa fa-chart-line"></i> Purchase Invoice
                                         </a>
                                     </li>
                                 }
-                                <!-- Supplier wise Stock View - Order: 3, GroupId: 1 -->
+                                @*<!-- Supplier wise Stock View - Order: 3, GroupId: 1 -->
                                 @if (User.IsInRole("SupplierStockViewIndex"))
                                 {
                                     <li>
@@ -360,7 +357,7 @@
                                             <i class="fa fa-check-circle"></i> Invoice Approval
                                         </a>
                                     </li>
-                                }
+                                }*@
                             </ul>
                         </li>
                     }
@@ -372,25 +369,25 @@
                        1. Stock View Report (StockViewReport)
                        2. Raw Materials Intake Report (RawMaterialIntakeReport)
                     *@
-                    @if (Model != null && (User.IsInRole("StockViewReportIndex") || User.IsInRole("RawMaterialIntakeReportIndex")))
+                    @if (Model != null && (User.IsInRole("SalesOrderIndex")))
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="reportsDropdownUser" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa fa-file-alt"></i> Reports
+                                <i class="bi bi-currency-exchange"></i> Sales
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="reportsDropdownUser">
                                 <!-- Stock View Report - Order: 1, GroupId: 5 -->
-                                @if (User.IsInRole("StockViewReportIndex"))
+                                @if (User.IsInRole("SalesOrderIndex"))
                                 {
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Index", "StockViewReport")"
-                                           data-role="StockViewReport" data-menugroupid="5" data-menuorder="1">
-                                            <i class="fa fa-chart-bar"></i> Stock View Report
+                                        <a class="dropdown-item" href="@Url.Action("Index", "SalesOrderIndex")"
+                                           data-role="SalesOrderIndex" data-menugroupid="5" data-menuorder="1">
+                                            <i class="fa fa-chart-bar"></i> Sales Order
                                         </a>
                                     </li>
                                 }
-                                <!-- Raw Materials Intake Report - Order: 2, GroupId: 5 -->
+                                @*<!-- Raw Materials Intake Report - Order: 2, GroupId: 5 -->
                                 @if (User.IsInRole("RawMaterialIntakeReportIndex"))
                                 {
                                     <li>
@@ -399,7 +396,7 @@
                                             <i class="fa fa-truck-loading"></i> Raw Materials Intake Report
                                         </a>
                                     </li>
-                                }
+                                }*@
                             </ul>
                         </li>
                     }
@@ -416,9 +413,9 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="tallyDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa fa-calculator"></i> Tally
+                               <i class="bi bi-file-earmark-spreadsheet"></i> Reports
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="tallyDropdown">
+                            @*<ul class="dropdown-menu" aria-labelledby="tallyDropdown">
                                 <!-- Invoice Updation to Tally - Order: 1, GroupId: 3 -->
                                 <li>
                                     <a class="dropdown-item" href="@Url.Action("Index", "ComingSoon")"
@@ -426,7 +423,7 @@
                                         <i class="fa fa-sync-alt"></i> Invoice Updation to Tally
                                     </a>
                                 </li>
-                            </ul>
+                            </ul>*@
                         </li>
                     }
 
@@ -814,7 +811,7 @@
                                                     </a>
                                                 </li>
                                             }
-                                            <!-- Packing Master - Order: 15, GroupId: 4 -->
+                                            @*Packing Master - Order: 15, GroupId: 4
                                             @if (User.IsInRole("PackingMasterIndex"))
                                             {
                                                 <li>
@@ -843,7 +840,7 @@
                                                         <i class="fa fa-flask"></i> Laboratory
                                                     </a>
                                                 </li>
-                                            }
+                                            }*@
 
                                             <!-- Rate Card -->
                                             <!-- <li>
