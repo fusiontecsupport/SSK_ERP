@@ -1,0 +1,409 @@
+@{
+    ViewBag.Title = "Sales Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .main-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .form-body {
+        padding: 30px;
+        background: white;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .control-label {
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .req {
+        color: #e74c3c;
+        font-weight: bold;
+    }
+
+    .form-control {
+        border: 2px solid #c5ced8;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background-color: #edf1f7;
+        color: #212529;
+    }
+
+    .form-control:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+        background-color: white;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d3436;
+        margin: 10px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .msg {
+        background: linear-gradient(135deg, #00b894, #00cec9);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .so-detail-table thead th {
+        background-color: #337ab7;
+        color: #fff;
+        text-align: center;
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .so-detail-table tbody td {
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+    .so-totals-table th {
+        text-align: right;
+        width: 40%;
+        font-weight: 600;
+    }
+
+    .so-totals-table td {
+        width: 60%;
+    }
+
+    .so-address-row {
+        margin-bottom: 8px;
+    }
+
+    .so-address-row > [class*="col-"]:first-child {
+        padding-right: 20px;
+    }
+
+    .so-address-row > [class*="col-"]:last-child {
+        padding-left: 20px;
+    }
+</style>
+
+<div class="main-container">
+    <div class="form-container">
+        <div class="form-header">
+            <h1 class="form-title">
+                <i class="bi bi-receipt-cutoff"></i>
+                Sales Order
+            </h1>
+        </div>
+
+        <div class="form-body">
+            <div class="section-title">
+                <i class="fa fa-info-circle"></i> Customer Order
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>No</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>PO No</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>PO Date</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Address Line 1" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Address Line 2" />
+                        </div>
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="City" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="State" />
+                        </div>
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Post code" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Country" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Billing Location</label>
+                        <select class="form-control">
+                            <option>Select Billing Location</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Address Line 1" />
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="City" />
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Post code" />
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Despatch Location</label>
+                        <input type="text" class="form-control" placeholder="Despatch Location" />
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Address Line 1" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Address Line 2" />
+                        </div>
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="City" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <select class="form-control">
+                                <option>Select Despatch State</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Post code" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" class="form-control" placeholder="Country" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">Customer Order Details</div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle so-detail-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">S.No</th>
+                            <th style="width: 200px;">Material Group</th>
+                            <th style="width: 220px;">Material</th>
+                            <th style="width: 100px;">Qty</th>
+                            <th style="width: 120px;">Rate</th>
+                            <th style="width: 180px;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="soDetailsBody">
+                        <tr>
+                            <td class="text-center so-row-index">1</td>
+                            <td>
+                                <select class="form-control form-control-sm so-material-group">
+                                    <option value="">Select Material Group</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control form-control-sm so-material">
+                                    <option value="">Select Material</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm so-qty text-end" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm so-rate text-end" />
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1">
+                                    <input type="text" class="form-control form-control-sm so-amount text-end" />
+                                    <button type="button" class="btn btn-success btn-sm btn-add-row"><i class="fa fa-plus"></i></button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-6"></div>
+                <div class="col-md-6">
+                    <table class="table so-totals-table">
+                        <tr>
+                            <th>Gross Amount</th>
+                            <td><input type="text" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>CGST</th>
+                            <td><input type="text" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>SGST</th>
+                            <td><input type="text" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>IGST</th>
+                            <td><input type="text" class="form-control" /></td>
+                        </tr>
+                        <tr>
+                            <th>Net Amount</th>
+                            <td><input type="text" class="form-control" /></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section-title">Remarks</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <textarea class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="@Url.Action("Index", "SalesOrder")" class="btn btn-secondary">Back</a>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        (function ($) {
+            function updateSoRowNumbers() {
+                $('#soDetailsBody tr').each(function (index) {
+                    $(this).find('.so-row-index').text(index + 1);
+                });
+            }
+
+            $(document).on('click', '.btn-add-row', function () {
+                var $currentRow = $(this).closest('tr');
+                var $newRow = $currentRow.clone();
+
+                $newRow.find('input').val('');
+                $newRow.find('select').prop('selectedIndex', 0);
+
+                $('#soDetailsBody').append($newRow);
+                updateSoRowNumbers();
+            });
+
+            $(document).on('click', '.btn-remove-row', function () {
+                var $rows = $('#soDetailsBody tr');
+                if ($rows.length > 1) {
+                    $(this).closest('tr').remove();
+                    updateSoRowNumbers();
+                } else {
+                    $(this).closest('tr').find('input').val('');
+                    $(this).closest('tr').find('select').prop('selectedIndex', 0);
+                }
+            });
+
+            $(function () {
+                updateSoRowNumbers();
+            });
+        })(jQuery);
+    </script>
+}

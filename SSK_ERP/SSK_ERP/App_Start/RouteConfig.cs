@@ -170,6 +170,14 @@ namespace SSK_ERP
                 namespaces: new[] { "SSK_ERP.Controllers.Masters" }
             );
 
+            // Explicit route for SalesOrder under main controllers namespace
+            routes.MapRoute(
+                name: "SalesOrder",
+                url: "SalesOrder/{action}/{id}",
+                defaults: new { controller = "SalesOrder", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers" }
+            );
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

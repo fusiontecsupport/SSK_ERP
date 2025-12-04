@@ -220,6 +220,7 @@
     <Compile Include="Controllers\Masters\MaterialGroupMasterController.cs" />
     <Compile Include="Controllers\Masters\MaterialMasterController.cs" />
     <Compile Include="Controllers\NavbarController.cs" />
+    <Compile Include="Controllers\Sales\SalesOrderController.cs" />
     <!-- Excluded per cleanup -->
     <!-- <Compile Include="Controllers\ProfileMasterController.cs" /> -->
     <Compile Include="Controllers\RolesController.cs" />
