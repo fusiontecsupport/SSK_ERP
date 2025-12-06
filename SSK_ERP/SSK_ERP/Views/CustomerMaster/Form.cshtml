@@ -196,22 +196,16 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             @Html.LabelFor(m => m.CATEADDR3, new { @class = "control-label" })
                             @Html.TextBoxFor(m => m.CATEADDR3, new { @class = "form-control", @placeholder = "Enter address line 3" })
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             @Html.LabelFor(m => m.CATEADDR4, new { @class = "control-label" })
                             @Html.TextBoxFor(m => m.CATEADDR4, new { @class = "form-control", @placeholder = "Enter address line 4" })
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.CATEADDR5, new { @class = "control-label" })
-                            @Html.TextBoxFor(m => m.CATEADDR5, new { @class = "form-control", @placeholder = "Enter pincode" })
                         </div>
                     </div>
                 </div>
@@ -219,16 +213,26 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="control-label">@Html.DisplayNameFor(m => m.STATEID) <span class="req">*</span></label>
-                            @Html.DropDownListFor(model => model.STATEID, ViewBag.STATEID as List<SelectListItem>, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(m => m.STATEID, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
                             <label class="control-label">@Html.DisplayNameFor(m => m.LOCTID) <span class="req">*</span></label>
                             @Html.DropDownListFor(model => model.LOCTID, ViewBag.LOCTID as List<SelectListItem>, new { @class = "form-control" })
                             @Html.ValidationMessageFor(m => m.LOCTID, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">@Html.DisplayNameFor(m => m.STATEID) <span class="req">*</span></label>
+                                    @Html.DropDownListFor(model => model.STATEID, ViewBag.STATEID as List<SelectListItem>, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.STATEID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.CATEADDR5, new { @class = "control-label" })
+                                    @Html.TextBoxFor(m => m.CATEADDR5, new { @class = "form-control", @placeholder = "Enter pincode" })
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -311,11 +315,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            @Html.LabelFor(m => m.CATE_PEST_LIC_NO, new { @class = "control-label" })
-                            @Html.TextBoxFor(m => m.CATE_PEST_LIC_NO, new { @class = "form-control", @placeholder = "Enter pesticide licence number" })
+                            <label class="control-label">Licence No</label>
+                            @Html.TextBoxFor(m => m.CATE_PEST_LIC_NO, new { @class = "form-control", @placeholder = "Enter licence number" })
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" style="display: none;">
                         <div class="form-group">
                             @Html.LabelFor(m => m.CATE_SEED_LIC_NO, new { @class = "control-label" })
                             @Html.TextBoxFor(m => m.CATE_SEED_LIC_NO, new { @class = "form-control", @placeholder = "Enter seed licence number" })
