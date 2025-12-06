@@ -1,7 +1,11 @@
+@model SSK_ERP.Models.TransactionMaster
+
 @{
     ViewBag.Title = "Sales Order";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <style>
     .main-container {
@@ -335,115 +339,115 @@
         </div>
 
         <div class="form-body">
-            <div class="section-title">
-                <i class="fa fa-info-circle"></i> Sales Order
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>No</label>
-                        <input type="text" class="form-control" />
+            @using (Html.BeginForm("savedata", "SalesOrder", FormMethod.Post, new { id = "salesOrderForm" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.TRANMID)
+
+                <div class="section-title">
+                    <i class="fa fa-info-circle"></i> Sales Order
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>No</label>
+                            @Html.HiddenFor(m => m.TRANDNO)
+                            @Html.TextBoxFor(m => m.TRANNO, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Date</label>
+                            @Html.TextBoxFor(m => m.TRANDATE, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Status</label>
+                            @Html.DropDownListFor(m => m.DISPSTATUS, ViewBag.StatusList as SelectList, new { @class = "form-control", id = "statusDropdown" })
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="text" class="form-control" />
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>PO No</label>
-                        <input type="text" class="form-control" />
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>PO Date</label>
-                        <input type="text" class="form-control" />
-                    </div>
-                </div>
-            </div>
 
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Customer Name</label>
-                        <input type="text" class="form-control" />
+                        @Html.DropDownListFor(m => m.TRANREFID,
+                            ViewBag.CustomerList as SelectList,
+                            "-- Select Customer --",
+                            new { @class = "form-control", id = "customerDropdown" })
                     </div>
                     <div class="row so-address-row">
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Address Line 1" />
+                            <input type="text" id="custAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
                         </div>
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Address Line 2" />
-                        </div>
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="City" />
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="State" />
+                            <input type="text" id="custAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
                         </div>
                     </div>
                     <div class="row so-address-row">
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Post code" />
+                            <input type="text" id="custCity" class="form-control" placeholder="City" readonly="readonly" />
                         </div>
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Country" />
+                            <input type="text" id="custState" class="form-control" placeholder="State" readonly="readonly" />
                         </div>
                     </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" id="custPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" id="custCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                        </div>
+                    </div>
+                    @Html.HiddenFor(m => m.TRANSTATETYPE, new { id = "stateTypeDropdown" })
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Billing Location</label>
-                        <select class="form-control">
-                            <option>Select Billing Location</option>
-                        </select>
+                        <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Address Line 1" />
+                        <input type="text" id="billingAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="City" />
+                        <input type="text" id="billingCity" class="form-control" placeholder="City" readonly="readonly" />
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Post code" />
+                        <input type="text" id="billingPincode" class="form-control" placeholder="Post code" readonly="readonly" />
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Despatch Location</label>
-                        <input type="text" class="form-control" placeholder="Despatch Location" />
+                        <input type="text" id="dispatchLocation" class="form-control" placeholder="Despatch Location" readonly="readonly" />
                     </div>
                     <div class="row so-address-row">
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Address Line 1" />
+                            <input type="text" id="dispatchAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
                         </div>
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Address Line 2" />
-                        </div>
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="City" />
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <select class="form-control">
-                                <option>Select Despatch State</option>
-                            </select>
+                            <input type="text" id="dispatchAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
                         </div>
                     </div>
                     <div class="row so-address-row">
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Post code" />
+                            <input type="text" id="dispatchCity" class="form-control" placeholder="City" readonly="readonly" />
                         </div>
                         <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" class="form-control" placeholder="Country" />
+                            <input type="text" id="dispatchState" class="form-control" placeholder="State" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row so-address-row">
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" id="dispatchPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                            <input type="text" id="dispatchCountry" class="form-control" placeholder="Country" readonly="readonly" />
                         </div>
                     </div>
                 </div>
@@ -467,12 +471,12 @@
                         <tr>
                             <td class="text-center so-row-index">1</td>
                             <td>
-                                <select class="form-control form-control-sm so-material">
+                                <select class="form-control form-control-sm so-material select2">
                                     <option value="">Select Material</option>
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control form-control-sm so-material-group">
+                                <select class="form-control form-control-sm so-material-group" disabled="disabled">
                                     <option value="">Select Material Group</option>
                                 </select>
                             </td>
@@ -484,7 +488,7 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
-                                    <input type="text" class="form-control form-control-sm so-amount text-end" />
+                                    <input type="text" class="form-control form-control-sm so-amount text-end" readonly="readonly" />
                                     <button type="button" class="btn btn-success btn-sm btn-add-row"><i class="fa fa-plus"></i></button>
                                     <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus"></i></button>
                                 </div>
@@ -505,35 +509,35 @@
                             </td>
                             <td class="so-tax-summary-label">Gross Amount</td>
                             <td class="col-md-2">
-                                <input type="text" class="form-control text-end" id="soGrossAmount" />
+                                @Html.TextBoxFor(m => m.TRANGAMT, new { @class = "form-control text-end", id = "soGrossAmount", @readonly = "readonly" })
                             </td>
                         </tr>
                         <tr>
                             <td></td>
                             <td class="so-tax-summary-label">CGST</td>
                             <td>
-                                <input type="text" class="form-control text-end" id="soCgstAmount" />
+                                @Html.TextBoxFor(m => m.TRANCGSTAMT, new { @class = "form-control text-end", id = "soCgstAmount", @readonly = "readonly" })
                             </td>
                         </tr>
                         <tr>
                             <td></td>
                             <td class="so-tax-summary-label">SGST</td>
                             <td>
-                                <input type="text" class="form-control text-end" id="soSgstAmount" />
+                                @Html.TextBoxFor(m => m.TRANSGSTAMT, new { @class = "form-control text-end", id = "soSgstAmount", @readonly = "readonly" })
                             </td>
                         </tr>
                         <tr>
                             <td></td>
                             <td class="so-tax-summary-label">IGST</td>
                             <td>
-                                <input type="text" class="form-control text-end" id="soIgstAmount" />
+                                @Html.TextBoxFor(m => m.TRANIGSTAMT, new { @class = "form-control text-end", id = "soIgstAmount", @readonly = "readonly" })
                             </td>
                         </tr>
                         <tr>
                             <td></td>
                             <td class="so-tax-summary-label">Net Amount</td>
                             <td>
-                                <input type="text" class="form-control text-end" id="soNetAmount" />
+                                @Html.TextBoxFor(m => m.TRANNAMT, new { @class = "form-control text-end", id = "soNetAmount", @readonly = "readonly" })
                             </td>
                         </tr>
                     </table>
@@ -624,25 +628,116 @@
             <div class="section-title">Remarks</div>
             <div class="row">
                 <div class="col-md-12">
-                    <textarea class="form-control" rows="3"></textarea>
+                    @Html.TextAreaFor(m => m.TRANRMKS, new { @class = "form-control", rows = 3 })
                 </div>
             </div>
 
             <div class="form-actions">
                 <a href="@Url.Action("Index", "SalesOrder")" class="btn btn-secondary">Back</a>
-                <button type="button" class="btn btn-primary">Save</button>
+                <input type="hidden" id="detailRowsJson" name="detailRowsJson" />
+                <button type="button" id="btnSoSave" class="btn btn-primary">Save</button>
             </div>
+            }
         </div>
     </div>
 </div>
 
 @section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script type="text/javascript">
         (function ($) {
             var soMaterialGroupMap = {};
             var soMaterialOptionsHtml = '<option value="">Select Material</option>';
             var soGroupOptionsHtml = '<option value="">Select Material Group</option>';
             var soCostFactorOptionsHtml = '<option value="">Select Cost Factor</option>';
+            var initialSoDetails = @Html.Raw(ViewBag.DetailRowsJson ?? "[]");
+            var soDetailsInitialized = false;
+
+            function initCustomerSelect() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                var $ddl = $('#customerDropdown');
+                if ($ddl.length) {
+                    $ddl.select2({ width: '100%' });
+
+                    var currentId = $ddl.val();
+                    if (currentId && parseInt(currentId, 10) > 0) {
+                        fetchCustomerDetails(currentId);
+                    }
+                }
+            }
+
+            function initMaterialSelect2($context) {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                var $scope = $context && $context.length ? $context : $('#soDetailsBody');
+                $scope.find('.so-material').each(function () {
+                    var $el = $(this);
+                    if ($el.hasClass('select2-hidden-accessible')) {
+                        $el.select2('destroy');
+                    }
+                    $el.select2({ width: 'resolve' });
+                });
+            }
+
+            function clearCustomerDetails() {
+                $('#custAddr1, #custAddr2, #custCity, #custState, #custPincode, #custCountry').val('');
+                $('#billingLocation, #billingAddr1, #billingCity, #billingPincode').val('');
+                $('#dispatchLocation, #dispatchAddr1, #dispatchAddr2, #dispatchCity, #dispatchState, #dispatchPincode, #dispatchCountry').val('');
+                $('#stateTypeDropdown').val('0');
+            }
+
+            function applyCustomerDetails(data) {
+                if (!data) return;
+
+                $('#custAddr1').val(data.Address1 || '');
+                $('#custAddr2').val(data.Address2 || '');
+                $('#custCity').val(data.City || '');
+                $('#custState').val(data.State || '');
+                $('#custPincode').val(data.Pincode || '');
+                $('#custCountry').val(data.Country || '');
+
+                $('#billingLocation').val(data.City || '');
+                $('#billingAddr1').val(data.Address1 || '');
+                $('#billingCity').val(data.City || '');
+                $('#billingPincode').val(data.Pincode || '');
+
+                $('#dispatchLocation').val(data.City || '');
+                $('#dispatchAddr1').val(data.Address1 || '');
+                $('#dispatchAddr2').val(data.Address2 || '');
+                $('#dispatchCity').val(data.City || '');
+                $('#dispatchState').val(data.State || '');
+                $('#dispatchPincode').val(data.Pincode || '');
+                $('#dispatchCountry').val(data.Country || '');
+
+                if (typeof data.StateType !== 'undefined') {
+                    $('#stateTypeDropdown').val(String(data.StateType));
+                }
+            }
+
+            function fetchCustomerDetails(customerId) {
+                if (!customerId) {
+                    clearCustomerDetails();
+                    return;
+                }
+
+                $.getJSON('@Url.Action("GetCustomerDetails", "SalesOrder")', { id: customerId })
+                    .done(function (resp) {
+                        if (!resp || resp.success === false) {
+                            clearCustomerDetails();
+                            return;
+                        }
+
+                        applyCustomerDetails(resp.data);
+                    })
+                    .fail(function () {
+                        clearCustomerDetails();
+                    });
+            }
 
             function updateSoRowNumbers() {
                 $('#soDetailsBody tr').each(function (index) {
@@ -681,10 +776,63 @@
                         $('#soDetailsBody .so-material-group').each(function () {
                             $(this).html(soGroupOptionsHtml);
                         });
+
+                        if (!soDetailsInitialized && initialSoDetails && initialSoDetails.length) {
+                            initSoDetailRows();
+                        } else {
+                            updateSoRowNumbers();
+                        }
+
+                        initMaterialSelect2();
                     })
                     .fail(function (xhr, status, error) {
                         console.error('Error loading material/group data:', status, error, xhr && xhr.responseText);
                     });
+            }
+
+            function initSoDetailRows() {
+                if (soDetailsInitialized) {
+                    return;
+                }
+
+                if (!initialSoDetails || !initialSoDetails.length) {
+                    updateSoRowNumbers();
+                    soDetailsInitialized = true;
+                    return;
+                }
+
+                var $tbody = $('#soDetailsBody');
+                var $template = $tbody.find('tr:first').clone();
+                $tbody.empty();
+
+                $.each(initialSoDetails, function (index, item) {
+                    if (!item) return;
+                    var $row = $template.clone();
+                    $row.find('.so-material').val(String(item.MaterialId || ''));
+
+                    var groupId = soMaterialGroupMap[item.MaterialId];
+                    if (groupId) {
+                        $row.find('.so-material-group').val(String(groupId));
+                    } else {
+                        $row.find('.so-material-group').val('');
+                    }
+
+                    if (typeof item.Qty !== 'undefined') {
+                        $row.find('.so-qty').val(item.Qty);
+                    }
+                    if (typeof item.Rate !== 'undefined') {
+                        $row.find('.so-rate').val(item.Rate);
+                    }
+                    if (typeof item.Amount !== 'undefined') {
+                        $row.find('.so-amount').val(item.Amount);
+                    }
+
+                    $tbody.append($row);
+                });
+
+                updateSoRowNumbers();
+                recalcSoGross();
+                soDetailsInitialized = true;
             }
 
             function loadCostFactors() {
@@ -719,7 +867,9 @@
                 $newRow.find('select').prop('selectedIndex', 0);
 
                 $('#soDetailsBody').append($newRow);
+                initMaterialSelect2($newRow);
                 updateSoRowNumbers();
+                recalcSoGross();
             });
 
             $(document).on('click', '.btn-remove-row', function () {
@@ -731,6 +881,7 @@
                     $(this).closest('tr').find('input').val('');
                     $(this).closest('tr').find('select').prop('selectedIndex', 0);
                 }
+                recalcSoGross();
             });
 
             // Auto-fill material group when material changes
@@ -785,6 +936,22 @@
                 $('#soGrossWithTax').text((gross + totalTax).toFixed(2));
             }
 
+            function recalcSoGross() {
+                var gross = 0;
+                $('#soDetailsBody .so-amount').each(function () {
+                    var v = parseFloat($(this).val());
+                    if (!isNaN(v)) gross += v;
+                });
+
+                $('#soGrossAmount').val(gross.toFixed(2));
+
+                var cgst = parseFloat($('#soCgstAmount').val()) || 0;
+                var sgst = parseFloat($('#soSgstAmount').val()) || 0;
+                var igst = parseFloat($('#soIgstAmount').val()) || 0;
+
+                $('#soNetAmount').val((gross + cgst + sgst + igst).toFixed(2));
+            }
+
             // Open TAX / Cost Factor modal
             $('#soTaxToggle').on('click', function () {
                 $('#soTaxModal').modal('show');
@@ -800,6 +967,19 @@
                     }
                 }
                 recalcSoTaxTotals();
+            });
+
+            $(document).on('keyup change', '.so-qty, .so-rate', function () {
+                var $row = $(this).closest('tr');
+                var qty = parseFloat($row.find('.so-qty').val() || '0');
+                var rate = parseFloat($row.find('.so-rate').val() || '0');
+                var amount = qty * rate;
+                $row.find('.so-amount').val(amount.toFixed(2));
+                recalcSoGross();
+            });
+
+            $(document).on('change', '.so-amount', function () {
+                recalcSoGross();
             });
 
             // Add new cost factor row inside modal (UI only)
@@ -860,10 +1040,57 @@
                 $('#soTaxModal').modal('hide');
             });
 
+            function collectSoDetailRows() {
+                var rows = [];
+                $('#soDetailsBody tr').each(function () {
+                    var $row = $(this);
+                    var materialId = parseInt($row.find('.so-material').val() || '0', 10);
+                    var qty = parseFloat($row.find('.so-qty').val() || '0');
+                    var rate = parseFloat($row.find('.so-rate').val() || '0');
+                    var amount = parseFloat($row.find('.so-amount').val() || '0');
+
+                    if (materialId > 0 && qty > 0) {
+                        if (isNaN(amount) || amount === 0) {
+                            amount = qty * rate;
+                        }
+
+                        rows.push({
+                            MaterialId: materialId,
+                            Qty: qty,
+                            Rate: rate,
+                            Amount: amount
+                        });
+                    }
+                });
+
+                return rows;
+            }
+
+            $('#btnSoSave').on('click', function () {
+                var rows = collectSoDetailRows();
+                if (!rows.length) {
+                    alert('Please add at least one detail row with Material and Qty.');
+                    return;
+                }
+
+                $('#detailRowsJson').val(JSON.stringify(rows));
+                $('#salesOrderForm').submit();
+            });
+
             $(function () {
                 updateSoRowNumbers();
                 loadMaterialAndGroupData();
                 loadCostFactors();
+                initCustomerSelect();
+
+                $('#customerDropdown').on('change', function () {
+                    var id = $(this).val();
+                    if (!id) {
+                        clearCustomerDetails();
+                        return;
+                    }
+                    fetchCustomerDetails(id);
+                });
             });
         })(jQuery);
     </script>
