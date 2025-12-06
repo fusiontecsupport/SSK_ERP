@@ -652,6 +652,7 @@
             var soCostFactorOptionsHtml = '<option value="">Select Cost Factor</option>';
             var initialSoDetails = @Html.Raw(ViewBag.DetailRowsJson ?? "[]");
             var soDetailsInitialized = false;
+            var soDetailRowTemplate = null;
 
             function initCustomerSelect() {
                 if (!$.fn.select2) {
@@ -860,11 +861,23 @@
             }
 
             $(document).on('click', '.btn-add-row', function () {
-                var $currentRow = $(this).closest('tr');
-                var $newRow = $currentRow.clone();
+                var $newRow;
+                if (soDetailRowTemplate) {
+                    $newRow = soDetailRowTemplate.clone();
+                } else {
+                    $newRow = $('#soDetailsBody tr:first').clone();
+                }
 
                 $newRow.find('input').val('');
                 $newRow.find('select').prop('selectedIndex', 0);
+
+                // ensure material and group dropdowns have options
+                $newRow.find('.so-material').each(function () {
+                    $(this).html(soMaterialOptionsHtml);
+                });
+                $newRow.find('.so-material-group').each(function () {
+                    $(this).html(soGroupOptionsHtml);
+                });
 
                 $('#soDetailsBody').append($newRow);
                 initMaterialSelect2($newRow);
@@ -1079,6 +1092,9 @@
 
             $(function () {
                 updateSoRowNumbers();
+                // capture a clean template row before select2 is applied
+                soDetailRowTemplate = $('#soDetailsBody tr:first').clone();
+
                 loadMaterialAndGroupData();
                 loadCostFactors();
                 initCustomerSelect();
