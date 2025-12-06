@@ -25,6 +25,7 @@ namespace SSK_ERP.Models
         public DbSet<MaterialTypeMaster> MaterialTypeMasters { get; set; }
         public DbSet<MaterialGroupMaster> MaterialGroupMasters { get; set; }
         public DbSet<MaterialMaster> MaterialMasters { get; set; }
+        public DbSet<PackingMaster> PackingMasters { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         new public virtual IDbSet<ApplicationRole> Roles { get; set; }
         public virtual IDbSet<Group> Groups { get; set; }

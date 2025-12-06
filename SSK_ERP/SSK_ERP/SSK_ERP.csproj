@@ -220,6 +220,7 @@
     <Compile Include="Controllers\Masters\MaterialTypeMasterController.cs" />
     <Compile Include="Controllers\Masters\MaterialGroupMasterController.cs" />
     <Compile Include="Controllers\Masters\MaterialMasterController.cs" />
+    <Compile Include="Controllers\Masters\PackingMasterController.cs" />
     <Compile Include="Controllers\NavbarController.cs" />
     <Compile Include="Controllers\Sales\SalesOrderController.cs" />
     <Compile Include="Controllers\Purchase\PurchaseOrderController.cs" />
@@ -332,6 +333,7 @@
     <Compile Include="Models\MaterialTypeMaster.cs" />
     <Compile Include="Models\MaterialGroupMaster.cs" />
     <Compile Include="Models\MaterialMaster.cs" />
+    <Compile Include="Models\PackingMaster.cs" />
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\IdentityManager.cs" />

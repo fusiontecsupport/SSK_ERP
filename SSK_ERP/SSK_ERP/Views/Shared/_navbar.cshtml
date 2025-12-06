@@ -814,15 +814,17 @@
                                                     </a>
                                                 </li>
                                             }
-                                            @*Packing Master - Order: 15, GroupId: 4
+                                            <!-- Packing Master - Order: 15, GroupId: 4 -->
                                             @if (User.IsInRole("PackingMasterIndex"))
                                             {
                                                 <li>
                                                     <a class="dropdown-item" href="@Url.Action("Index", "PackingMaster")"
-                                                       data-role="PackingMaster" data-menugroupid="4" data-menuorder="16">
+                                                       data-role="PackingMaster" data-menugroupid="4" data-menuorder="17">
                                                         <i class="fa fa-box"></i> Packing
                                                     </a>
                                                 </li>
+                                            }
+                                            @*Packing Type Master - Order: 16, GroupId: 4
                                             }
                                             <!-- Packing Type Master - Order: 16, GroupId: 4 -->
                                             @if (User.IsInRole("PackingTypeMasterIndex"))

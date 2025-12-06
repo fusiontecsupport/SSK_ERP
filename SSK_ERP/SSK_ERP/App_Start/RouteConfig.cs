@@ -114,6 +114,14 @@ namespace SSK_ERP
                 namespaces: new[] { "SSK_ERP.Controllers.Masters" }
             );
 
+            // Explicit route for PackingMaster under Masters namespace
+            routes.MapRoute(
+                name: "PackingMaster",
+                url: "PackingMaster/{action}/{id}",
+                defaults: new { controller = "PackingMaster", action = "Index", id = UrlParameter.Optional },
+                namespaces: new[] { "SSK_ERP.Controllers.Masters" }
+            );
+
             // Explicit route for CustomerMaster under Masters namespace
             routes.MapRoute(
                 name: "CustomerMaster",
