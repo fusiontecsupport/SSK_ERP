@@ -327,6 +327,11 @@
     .so-tax-row-delete i {
         display: none;
     }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.15);
+    }
 </style>
 
 <div class="main-container">
@@ -369,282 +374,282 @@
                     </div>
                 </div>
 
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Customer Name</label>
-                        @Html.DropDownListFor(m => m.TRANREFID,
-                            ViewBag.CustomerList as SelectList,
-                            "-- Select Customer --",
-                            new { @class = "form-control", id = "customerDropdown" })
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Customer Name</label>
+                            @Html.DropDownListFor(m => m.TRANREFID,
+                                ViewBag.CustomerList as SelectList,
+                                "-- Select Customer --",
+                                new { @class = "form-control", id = "customerDropdown" })
+                        </div>
+                        <div class="row so-address-row">
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="custAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="custAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="row so-address-row">
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="custCity" class="form-control" placeholder="City" readonly="readonly" />
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="custState" class="form-control" placeholder="State" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="row so-address-row">
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="custPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="custCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                            </div>
+                        </div>
+                        @Html.HiddenFor(m => m.TRANSTATETYPE, new { id = "stateTypeDropdown" })
                     </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="custAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Billing Location</label>
+                            <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
                         </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="custAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
+                        <div class="form-group">
+                            <input type="text" id="billingAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
                         </div>
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="custCity" class="form-control" placeholder="City" readonly="readonly" />
+                        <div class="form-group">
+                            <input type="text" id="billingCity" class="form-control" placeholder="City" readonly="readonly" />
                         </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="custState" class="form-control" placeholder="State" readonly="readonly" />
-                        </div>
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="custPincode" class="form-control" placeholder="Post code" readonly="readonly" />
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="custCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                        <div class="form-group">
+                            <input type="text" id="billingPincode" class="form-control" placeholder="Post code" readonly="readonly" />
                         </div>
                     </div>
-                    @Html.HiddenFor(m => m.TRANSTATETYPE, new { id = "stateTypeDropdown" })
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Despatch Location</label>
+                            <input type="text" id="dispatchLocation" class="form-control" placeholder="Despatch Location" readonly="readonly" />
+                        </div>
+                        <div class="row so-address-row">
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="dispatchAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="dispatchAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="row so-address-row">
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="dispatchCity" class="form-control" placeholder="City" readonly="readonly" />
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="dispatchState" class="form-control" placeholder="State" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="row so-address-row">
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="dispatchPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-6">
+                                <input type="text" id="dispatchCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Billing Location</label>
-                        <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="billingAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="billingCity" class="form-control" placeholder="City" readonly="readonly" />
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="billingPincode" class="form-control" placeholder="Post code" readonly="readonly" />
-                    </div>
-                </div>
+                <div class="section-title">Customer Order Details</div>
 
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Despatch Location</label>
-                        <input type="text" id="dispatchLocation" class="form-control" placeholder="Despatch Location" readonly="readonly" />
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="dispatchAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="dispatchAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
-                        </div>
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="dispatchCity" class="form-control" placeholder="City" readonly="readonly" />
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="dispatchState" class="form-control" placeholder="State" readonly="readonly" />
-                        </div>
-                    </div>
-                    <div class="row so-address-row">
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="dispatchPincode" class="form-control" placeholder="Post code" readonly="readonly" />
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                            <input type="text" id="dispatchCountry" class="form-control" placeholder="Country" readonly="readonly" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-title">Customer Order Details</div>
-
-            <div class="table-responsive">
-                <table class="table table-sm table-bordered align-middle so-detail-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 60px;">S.No</th>
-                            <th style="width: 220px;">Material</th>
-                            <th style="width: 200px;">Material Group</th>
-                            <th style="width: 100px;">Profit %</th>
-                            <th style="width: 100px;">Qty</th>
-                            <th style="width: 120px;">Rate</th>
-                            <th style="width: 120px;">Actual Rate</th>
-                            <th style="width: 180px;">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody id="soDetailsBody">
-                        <tr>
-                            <td class="text-center so-row-index">1</td>
-                            <td>
-                                <select class="form-control form-control-sm so-material select2">
-                                    <option value="">Select Material</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select class="form-control form-control-sm so-material-group" disabled="disabled">
-                                    <option value="">Select Material Group</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm so-profit text-end" readonly="readonly" />
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm so-qty text-end" />
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm so-rate text-end" readonly="readonly" />
-                            </td>
-                            <td>
-                                <input type="text" class="form-control form-control-sm so-actual-rate text-end" readonly="readonly" />
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-1">
-                                    <input type="text" class="form-control form-control-sm so-amount text-end" readonly="readonly" />
-                                    <button type="button" class="btn btn-success btn-sm btn-add-row"><i class="fa fa-plus"></i></button>
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="row" style="margin-top: 10px;">
-                <div class="col-md-12">
-                    <table class="table table-bordered so-tax-table">
-                        <tr>
-                            <td class="col-md-4">
-                                <button type="button" class="btn btn-success btn-sm" id="soTaxToggle">
-                                    <i class="fa fa-plus-square"></i> TAX
-                                </button>
-                            </td>
-                            <td class="so-tax-summary-label">Gross Amount</td>
-                            <td class="col-md-2">
-                                @Html.TextBoxFor(m => m.TRANGAMT, new { @class = "form-control text-end", id = "soGrossAmount", @readonly = "readonly" })
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td class="so-tax-summary-label">CGST</td>
-                            <td>
-                                @Html.TextBoxFor(m => m.TRANCGSTAMT, new { @class = "form-control text-end", id = "soCgstAmount", @readonly = "readonly" })
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td class="so-tax-summary-label">SGST</td>
-                            <td>
-                                @Html.TextBoxFor(m => m.TRANSGSTAMT, new { @class = "form-control text-end", id = "soSgstAmount", @readonly = "readonly" })
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td class="so-tax-summary-label">IGST</td>
-                            <td>
-                                @Html.TextBoxFor(m => m.TRANIGSTAMT, new { @class = "form-control text-end", id = "soIgstAmount", @readonly = "readonly" })
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td class="so-tax-summary-label">Net Amount</td>
-                            <td>
-                                @Html.TextBoxFor(m => m.TRANNAMT, new { @class = "form-control text-end", id = "soNetAmount", @readonly = "readonly" })
-                            </td>
-                        </tr>
-                    </table>
-
-                    <div class="modal fade" id="soTaxModal" tabindex="-1" role="dialog" aria-labelledby="soTaxModalLabel">
-                        <div class="modal-dialog modal-xl" role="document">
-                            <div class="modal-content so-tax-modal">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <h4 class="modal-title" id="soTaxModalLabel">
-                                        <i class="fa fa-calculator"></i> Tax / Cost Factor
-                                    </h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="so-tax-costfactor">
-                                        <table class="table table-bordered so-tax-cf-table" id="soTaxFactorTable">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 40px;"></th>
-                                                    <th>Cost Factor</th>
-                                                    <th style="width: 260px;">Expression</th>
-                                                    <th style="width: 100px;">Mode</th>
-                                                    <th style="width: 140px;">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-danger btn-sm so-tax-row-delete" title="Remove row">
-                                                            <i class="fa fa-trash-o"></i>
-                                                        </button>
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control so-cost-factor">
-                                                            <option value="">Select Cost Factor</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <div class="input-group input-group-sm">
-                                                            <select class="form-control so-tax-type">
-                                                                <option value="%">%</option>
-                                                                <option value="Value">Value</option>
-                                                            </select>
-                                                            <input type="text" class="form-control text-end so-tax-value" value="0.000" />
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control so-tax-mode">
-                                                            <option value="+">+</option>
-                                                            <option value="-">-</option>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control text-end so-tax-amount" value="0.00" />
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                            <tfoot>
-                                                <tr class="bg-light">
-                                                    <td colspan="4" class="text-end"><strong>Total Tax Amount:</strong></td>
-                                                    <td><strong id="soTotalTaxAmount">0.00</strong></td>
-                                                </tr>
-                                                <tr class="bg-success text-white">
-                                                    <td colspan="4" class="text-end"><strong>Gross + Tax:</strong></td>
-                                                    <td><strong id="soGrossWithTax">0.00</strong></td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle so-detail-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">S.No</th>
+                                <th style="width: 220px;">Material</th>
+                                <th style="width: 200px;">Material Group</th>
+                                <th style="width: 100px;">Profit %</th>
+                                <th style="width: 100px;">Qty</th>
+                                <th style="width: 120px;">Rate</th>
+                                <th style="width: 120px;">Actual Rate</th>
+                                <th style="width: 180px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="soDetailsBody">
+                            <tr>
+                                <td class="text-center so-row-index">1</td>
+                                <td>
+                                    <select class="form-control form-control-sm so-material select2">
+                                        <option value="">Select Material</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-control form-control-sm so-material-group" disabled="disabled">
+                                        <option value="">Select Material Group</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm so-profit text-end" readonly="readonly" />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm so-qty text-end" />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm so-rate text-end" readonly="readonly" />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-sm so-actual-rate text-end" />
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input type="text" class="form-control form-control-sm so-amount text-end" readonly="readonly" />
+                                        <button type="button" class="btn btn-success btn-sm btn-add-row"><i class="fa fa-plus"></i></button>
+                                        <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus"></i></button>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-success btn-sm" id="soAddCostFactorRow">
-                                        <i class="fa fa-plus"></i> Add Row
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <table class="table table-bordered so-tax-table">
+                            <tr>
+                                <td class="col-md-4">
+                                    <button type="button" class="btn btn-success btn-sm" id="soTaxToggle">
+                                        <i class="fa fa-plus-square"></i> TAX
                                     </button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary btn-sm" id="soApplyTax">
-                                        <i class="fa fa-check"></i> Apply
-                                    </button>
+                                </td>
+                                <td class="so-tax-summary-label">Gross Amount</td>
+                                <td class="col-md-2">
+                                    @Html.TextBoxFor(m => m.TRANGAMT, new { @class = "form-control text-end", id = "soGrossAmount", @readonly = "readonly" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="so-tax-summary-label">CGST</td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TRANCGSTAMT, new { @class = "form-control text-end", id = "soCgstAmount", @readonly = "readonly" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="so-tax-summary-label">SGST</td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TRANSGSTAMT, new { @class = "form-control text-end", id = "soSgstAmount", @readonly = "readonly" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="so-tax-summary-label">IGST</td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TRANIGSTAMT, new { @class = "form-control text-end", id = "soIgstAmount", @readonly = "readonly" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="so-tax-summary-label">Net Amount</td>
+                                <td>
+                                    @Html.TextBoxFor(m => m.TRANNAMT, new { @class = "form-control text-end", id = "soNetAmount", @readonly = "readonly" })
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div class="modal fade" id="soTaxModal" tabindex="-1" role="dialog" aria-labelledby="soTaxModalLabel">
+                            <div class="modal-dialog modal-xl" role="document">
+                                <div class="modal-content so-tax-modal">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <h4 class="modal-title" id="soTaxModalLabel">
+                                            <i class="fa fa-calculator"></i> Tax / Cost Factor
+                                        </h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="so-tax-costfactor">
+                                            <table class="table table-bordered so-tax-cf-table" id="soTaxFactorTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 40px;"></th>
+                                                        <th>Cost Factor</th>
+                                                        <th style="width: 260px;">Expression</th>
+                                                        <th style="width: 100px;">Mode</th>
+                                                        <th style="width: 140px;">Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-danger btn-sm so-tax-row-delete" title="Remove row">
+                                                                <i class="fa fa-trash-o"></i>
+                                                            </button>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control so-cost-factor">
+                                                                <option value="">Select Cost Factor</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group input-group-sm">
+                                                                <select class="form-control so-tax-type">
+                                                                    <option value="%">%</option>
+                                                                    <option value="Value">Value</option>
+                                                                </select>
+                                                                <input type="text" class="form-control text-end so-tax-value" value="0.000" />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control so-tax-mode">
+                                                                <option value="+">+</option>
+                                                                <option value="-">-</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control text-end so-tax-amount" value="0.00" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="bg-light">
+                                                        <td colspan="4" class="text-end"><strong>Total Tax Amount:</strong></td>
+                                                        <td><strong id="soTotalTaxAmount">0.00</strong></td>
+                                                    </tr>
+                                                    <tr class="bg-success text-white">
+                                                        <td colspan="4" class="text-end"><strong>Gross + Tax:</strong></td>
+                                                        <td><strong id="soGrossWithTax">0.00</strong></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-success btn-sm" id="soAddCostFactorRow">
+                                            <i class="fa fa-plus"></i> Add Row
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary btn-sm" id="soApplyTax">
+                                            <i class="fa fa-check"></i> Apply
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="section-title">Remarks</div>
-            <div class="row">
-                <div class="col-md-12">
-                    @Html.TextAreaFor(m => m.TRANRMKS, new { @class = "form-control", rows = 3 })
+                <div class="section-title">Remarks</div>
+                <div class="row">
+                    <div class="col-md-12">
+                        @Html.TextAreaFor(m => m.TRANRMKS, new { @class = "form-control", rows = 3 })
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-actions">
-                <a href="@Url.Action("Index", "SalesOrder")" class="btn btn-secondary">Back</a>
-                <input type="hidden" id="detailRowsJson" name="detailRowsJson" />
-                <button type="button" id="btnSoSave" class="btn btn-primary">Save</button>
-            </div>
+                <div class="form-actions">
+                    <a href="@Url.Action("Index", "SalesOrder")" class="btn btn-secondary">Back</a>
+                    <input type="hidden" id="detailRowsJson" name="detailRowsJson" />
+                    <button type="button" id="btnSoSave" class="btn btn-primary">Save</button>
+                </div>
             }
         </div>
     </div>
@@ -1087,7 +1092,7 @@
                 recalcSoTaxTotals();
             });
 
-            $(document).on('keyup change', '.so-qty, .so-rate', function () {
+            $(document).on('keyup change', '.so-qty, .so-rate, .so-actual-rate', function () {
                 var $row = $(this).closest('tr');
                 var qty = parseFloat($row.find('.so-qty').val() || '0');
                 var baseRate = parseFloat($row.find('.so-rate').val() || '0');
@@ -1200,7 +1205,57 @@
                 return rows;
             }
 
+            function validateSalesOrderForm() {
+                var isValid = true;
+
+                $('.form-control').removeClass('is-invalid');
+
+                var dateVal = $('#TRANDATE').val();
+                var customerVal = $('#customerDropdown').val();
+
+                if (!dateVal) {
+                    $('#TRANDATE').addClass('is-invalid');
+                    isValid = false;
+                }
+
+                if (!customerVal || customerVal === '' || customerVal === '0') {
+                    $('#customerDropdown').addClass('is-invalid');
+                    isValid = false;
+                }
+
+                var hasDetail = false;
+
+                $('#soDetailsBody tr').each(function () {
+                    var $row = $(this);
+                    var materialId = parseInt($row.find('.so-material').val() || '0', 10);
+                    var qty = parseFloat($row.find('.so-qty').val() || '0');
+                    var actualRate = parseFloat($row.find('.so-actual-rate').val() || '0');
+
+                    if (materialId > 0 && qty > 0) {
+                        hasDetail = true;
+                    } else if (materialId > 0 || qty > 0 || actualRate > 0) {
+                        if (materialId <= 0) {
+                            $row.find('.so-material').addClass('is-invalid');
+                        }
+                        if (!(qty > 0)) {
+                            $row.find('.so-qty').addClass('is-invalid');
+                        }
+                    }
+                });
+
+                if (!hasDetail) {
+                    alert('Please enter at least one detail row with Material and Qty.');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
             $('#btnSoSave').on('click', function () {
+                if (!validateSalesOrderForm()) {
+                    return;
+                }
+
                 var rows = collectSoDetailRows();
                 if (!rows.length) {
                     alert('Please add at least one detail row with Material and Qty.');
@@ -1227,6 +1282,14 @@
                         return;
                     }
                     fetchCustomerDetails(id);
+                });
+
+                $('#TRANDATE, #customerDropdown').on('change input', function () {
+                    $(this).removeClass('is-invalid');
+                });
+
+                $(document).on('change input', '.so-material, .so-qty, .so-actual-rate', function () {
+                    $(this).removeClass('is-invalid');
                 });
             });
         })(jQuery);

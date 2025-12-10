@@ -504,7 +504,8 @@ namespace SSK_ERP.Controllers
 
                     decimal qty = d.Qty;
                     decimal rate = d.Rate;
-                    decimal gross = d.Amount > 0 ? d.Amount : qty * rate;
+                    decimal actualRate = d.ActualRate > 0 ? d.ActualRate : rate;
+                    decimal gross = d.Amount > 0 ? d.Amount : qty * actualRate;
 
                     decimal cgstAmt = 0m;
                     decimal sgstAmt = 0m;
@@ -599,14 +600,14 @@ namespace SSK_ERP.Controllers
 
                 decimal qty = d.Qty;
                 decimal rate = d.Rate;
-                decimal gross = d.Amount > 0 ? d.Amount : qty * rate;
-
                 decimal profitPercent = material != null ? material.MTRLPRFT : 0m;
-                decimal actualRate = rate;
-                if (rate > 0 && profitPercent != 0)
+                decimal actualRate = d.ActualRate > 0 ? d.ActualRate : rate;
+                if (actualRate <= 0 && rate > 0 && profitPercent != 0)
                 {
                     actualRate = Math.Round(rate + ((rate * profitPercent) / 100m), 2);
                 }
+
+                decimal gross = d.Amount > 0 ? d.Amount : qty * actualRate;
 
                 decimal cgstAmt = 0m;
                 decimal sgstAmt = 0m;
