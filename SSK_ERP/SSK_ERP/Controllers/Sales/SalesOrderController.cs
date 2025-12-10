@@ -49,7 +49,9 @@ namespace SSK_ERP.Controllers
                         MaterialId = d.TRANDREFID,
                         Qty = d.TRANDQTY,
                         Rate = d.TRANDRATE,
-                        Amount = d.TRANDGAMT
+                        Amount = d.TRANDGAMT,
+                        ProfitPercent = d.TRANDMTRLPRFT,
+                        ActualRate = d.TRANDARATE
                     });
                 }
             }
@@ -398,7 +400,9 @@ namespace SSK_ERP.Controllers
                     {
                         id = m.MTRLID,
                         name = m.MTRLDESC,
-                        groupId = m.MTRLGID
+                        groupId = m.MTRLGID,
+                        rate = m.RATE,
+                        profitPercent = m.MTRLPRFT
                     })
                     .ToList();
 
@@ -489,6 +493,13 @@ namespace SSK_ERP.Controllers
                 decimal rate = d.Rate;
                 decimal gross = d.Amount > 0 ? d.Amount : qty * rate;
 
+                decimal profitPercent = material != null ? material.MTRLPRFT : 0m;
+                decimal actualRate = rate;
+                if (rate > 0 && profitPercent != 0)
+                {
+                    actualRate = Math.Round(rate + ((rate * profitPercent) / 100m), 2);
+                }
+
                 decimal cgstAmt = 0m;
                 decimal sgstAmt = 0m;
                 decimal igstAmt = 0m;
@@ -524,11 +535,12 @@ namespace SSK_ERP.Controllers
                     TRANDREFID = material != null ? material.MTRLID : d.MaterialId,
                     TRANDREFNO = material != null ? material.MTRLCODE : string.Empty,
                     TRANDREFNAME = material != null ? material.MTRLDESC : string.Empty,
-                    TRANDMTRLPRFT = material != null ? material.MTRLPRFT : 0m,
+                    TRANDMTRLPRFT = profitPercent,
                     HSNID = hsnId,
                     PACKMID = 0,
                     TRANDQTY = qty,
                     TRANDRATE = rate,
+                    TRANDARATE = actualRate,
                     TRANDGAMT = gross,
                     TRANDCGSTAMT = cgstAmt,
                     TRANDSGSTAMT = sgstAmt,
@@ -628,6 +640,8 @@ namespace SSK_ERP.Controllers
             public decimal Qty { get; set; }
             public decimal Rate { get; set; }
             public decimal Amount { get; set; }
+            public decimal ProfitPercent { get; set; }
+            public decimal ActualRate { get; set; }
         }
 
         protected override void Dispose(bool disposing)

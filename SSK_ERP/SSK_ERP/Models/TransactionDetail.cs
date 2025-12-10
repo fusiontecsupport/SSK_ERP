@@ -50,6 +50,10 @@ namespace SSK_ERP.Models
         public decimal TRANDRATE { get; set; }
 
         [Required]
+        [Column("TRANDARATE", TypeName = "numeric")]
+        public decimal TRANDARATE { get; set; }
+
+        [Required]
         [Column("TRANDGAMT", TypeName = "numeric")]
         public decimal TRANDGAMT { get; set; }
 

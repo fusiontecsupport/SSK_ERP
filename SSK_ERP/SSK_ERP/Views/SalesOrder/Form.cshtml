@@ -462,8 +462,10 @@
                             <th style="width: 60px;">S.No</th>
                             <th style="width: 220px;">Material</th>
                             <th style="width: 200px;">Material Group</th>
+                            <th style="width: 100px;">Profit %</th>
                             <th style="width: 100px;">Qty</th>
                             <th style="width: 120px;">Rate</th>
+                            <th style="width: 120px;">Actual Rate</th>
                             <th style="width: 180px;">Amount</th>
                         </tr>
                     </thead>
@@ -481,10 +483,16 @@
                                 </select>
                             </td>
                             <td>
+                                <input type="text" class="form-control form-control-sm so-profit text-end" readonly="readonly" />
+                            </td>
+                            <td>
                                 <input type="text" class="form-control form-control-sm so-qty text-end" />
                             </td>
                             <td>
-                                <input type="text" class="form-control form-control-sm so-rate text-end" />
+                                <input type="text" class="form-control form-control-sm so-rate text-end" readonly="readonly" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm so-actual-rate text-end" readonly="readonly" />
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
@@ -647,6 +655,8 @@
     <script type="text/javascript">
         (function ($) {
             var soMaterialGroupMap = {};
+            var soMaterialRateMap = {};
+            var soMaterialProfitMap = {};
             var soMaterialOptionsHtml = '<option value="">Select Material</option>';
             var soGroupOptionsHtml = '<option value="">Select Material Group</option>';
             var soCostFactorOptionsHtml = '<option value="">Select Cost Factor</option>';
@@ -755,10 +765,14 @@
                         }
 
                         soMaterialGroupMap = {};
+                        soMaterialRateMap = {};
+                        soMaterialProfitMap = {};
                         soMaterialOptionsHtml = '<option value="">Select Material</option>';
                         $.each(resp.materials || [], function (idx, item) {
                             if (!item) return;
                             soMaterialGroupMap[item.id] = item.groupId;
+                            soMaterialRateMap[item.id] = item.rate || 0;
+                            soMaterialProfitMap[item.id] = item.profitPercent || 0;
                             var name = item.name || '';
                             soMaterialOptionsHtml += '<option value="' + item.id + '">' + name + '</option>';
                         });
@@ -823,6 +837,17 @@
                     }
                     if (typeof item.Rate !== 'undefined') {
                         $row.find('.so-rate').val(item.Rate);
+                    }
+                    if (typeof item.ProfitPercent !== 'undefined') {
+                        $row.find('.so-profit').val(item.ProfitPercent);
+                    } else {
+                        var prof = soMaterialProfitMap[item.MaterialId] || 0;
+                        if (prof) {
+                            $row.find('.so-profit').val(prof);
+                        }
+                    }
+                    if (typeof item.ActualRate !== 'undefined') {
+                        $row.find('.so-actual-rate').val(item.ActualRate);
                     }
                     if (typeof item.Amount !== 'undefined') {
                         $row.find('.so-amount').val(item.Amount);
@@ -897,7 +922,7 @@
                 recalcSoGross();
             });
 
-            // Auto-fill material group when material changes
+            // Auto-fill material group, profit %, rate and actual rate when material changes
             $(document).on('change', '.so-material', function () {
                 var $row = $(this).closest('tr');
                 var matId = parseInt($(this).val() || '0', 10);
@@ -908,6 +933,38 @@
                 } else {
                     $row.find('.so-material-group').val('');
                 }
+
+                var rate = soMaterialRateMap[matId] || 0;
+                var profit = soMaterialProfitMap[matId] || 0;
+
+                var rateNum = parseFloat(rate);
+                var profitNum = parseFloat(profit);
+
+                if (!isNaN(rateNum)) {
+                    $row.find('.so-rate').val(rateNum.toFixed(2));
+                } else {
+                    $row.find('.so-rate').val('');
+                }
+
+                if (!isNaN(profitNum)) {
+                    $row.find('.so-profit').val(profitNum.toFixed(2));
+                } else {
+                    $row.find('.so-profit').val('');
+                }
+
+                var actualRate = rateNum;
+                if (!isNaN(rateNum) && !isNaN(profitNum) && rateNum > 0 && profitNum !== 0) {
+                    actualRate = rateNum + ((rateNum * profitNum) / 100.0);
+                }
+
+                if (!isNaN(actualRate)) {
+                    $row.find('.so-actual-rate').val(actualRate.toFixed(2));
+                } else {
+                    $row.find('.so-actual-rate').val('');
+                }
+
+                // Recalculate amount using the (base) rate without changing any other logic
+                $row.find('.so-rate').trigger('change');
             });
 
             // ---------- TAX / Cost Factor modal behaviour (UI-only) ----------
