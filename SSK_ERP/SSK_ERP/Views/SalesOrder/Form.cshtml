@@ -663,6 +663,7 @@
             var initialSoDetails = @Html.Raw(ViewBag.DetailRowsJson ?? "[]");
             var soDetailsInitialized = false;
             var soDetailRowTemplate = null;
+            var soTaxRefreshInProgress = false;
 
             function initCustomerSelect() {
                 if (!$.fn.select2) {
@@ -1020,6 +1021,53 @@
                 var igst = parseFloat($('#soIgstAmount').val()) || 0;
 
                 $('#soNetAmount').val((gross + cgst + sgst + igst).toFixed(2));
+
+                refreshServerTaxTotals();
+            }
+
+            function refreshServerTaxTotals() {
+                if (soTaxRefreshInProgress) {
+                    return;
+                }
+
+                var rows = collectSoDetailRows();
+                if (!rows.length) {
+                    $('#soCgstAmount').val('0.00');
+                    $('#soSgstAmount').val('0.00');
+                    $('#soIgstAmount').val('0.00');
+                    $('#soNetAmount').val($('#soGrossAmount').val() || '0.00');
+                    return;
+                }
+
+                var stateType = parseInt($('#stateTypeDropdown').val() || '0', 10);
+
+                soTaxRefreshInProgress = true;
+                $.ajax({
+                    url: '@Url.Action("CalculateSalesOrderTax", "SalesOrder")',
+                    type: 'POST',
+                    data: {
+                        stateType: stateType,
+                        detailRowsJson: JSON.stringify(rows)
+                    }
+                }).done(function (resp) {
+                    if (!resp || resp.success === false) {
+                        return;
+                    }
+
+                    var gross = parseFloat(resp.gross || 0);
+                    var cgst = parseFloat(resp.cgst || 0);
+                    var sgst = parseFloat(resp.sgst || 0);
+                    var igst = parseFloat(resp.igst || 0);
+                    var net = parseFloat(resp.net || 0);
+
+                    $('#soGrossAmount').val(gross.toFixed(2));
+                    $('#soCgstAmount').val(cgst.toFixed(2));
+                    $('#soSgstAmount').val(sgst.toFixed(2));
+                    $('#soIgstAmount').val(igst.toFixed(2));
+                    $('#soNetAmount').val(net.toFixed(2));
+                }).always(function () {
+                    soTaxRefreshInProgress = false;
+                });
             }
 
             // Open TAX / Cost Factor modal
@@ -1042,8 +1090,15 @@
             $(document).on('keyup change', '.so-qty, .so-rate', function () {
                 var $row = $(this).closest('tr');
                 var qty = parseFloat($row.find('.so-qty').val() || '0');
-                var rate = parseFloat($row.find('.so-rate').val() || '0');
-                var amount = qty * rate;
+                var baseRate = parseFloat($row.find('.so-rate').val() || '0');
+                var actualRate = parseFloat($row.find('.so-actual-rate').val() || '0');
+
+                var effectiveRate = !isNaN(actualRate) && actualRate > 0 ? actualRate : baseRate;
+                if (isNaN(effectiveRate)) {
+                    effectiveRate = 0;
+                }
+
+                var amount = qty * effectiveRate;
                 $row.find('.so-amount').val(amount.toFixed(2));
                 recalcSoGross();
             });
@@ -1117,18 +1172,27 @@
                     var materialId = parseInt($row.find('.so-material').val() || '0', 10);
                     var qty = parseFloat($row.find('.so-qty').val() || '0');
                     var rate = parseFloat($row.find('.so-rate').val() || '0');
+                    var actualRate = parseFloat($row.find('.so-actual-rate').val() || '0');
+                    var profitPercent = parseFloat($row.find('.so-profit').val() || '0');
                     var amount = parseFloat($row.find('.so-amount').val() || '0');
 
                     if (materialId > 0 && qty > 0) {
+                        var effectiveRate = !isNaN(actualRate) && actualRate > 0 ? actualRate : rate;
+                        if (isNaN(effectiveRate)) {
+                            effectiveRate = 0;
+                        }
+
                         if (isNaN(amount) || amount === 0) {
-                            amount = qty * rate;
+                            amount = qty * effectiveRate;
                         }
 
                         rows.push({
                             MaterialId: materialId,
                             Qty: qty,
                             Rate: rate,
-                            Amount: amount
+                            Amount: amount,
+                            ProfitPercent: isNaN(profitPercent) ? 0 : profitPercent,
+                            ActualRate: isNaN(actualRate) ? 0 : actualRate
                         });
                     }
                 });

@@ -449,6 +449,114 @@ namespace SSK_ERP.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult CalculateSalesOrderTax(short stateType, string detailRowsJson)
+        {
+            try
+            {
+                var details = string.IsNullOrWhiteSpace(detailRowsJson)
+                    ? new List<SalesOrderDetailRow>()
+                    : JsonConvert.DeserializeObject<List<SalesOrderDetailRow>>(detailRowsJson) ?? new List<SalesOrderDetailRow>();
+
+                details = details
+                    .Where(d => d != null && d.MaterialId > 0 && d.Qty > 0 && d.Rate >= 0)
+                    .ToList();
+
+                if (!details.Any())
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        gross = 0m,
+                        cgst = 0m,
+                        sgst = 0m,
+                        igst = 0m,
+                        net = 0m
+                    });
+                }
+
+                var materialIds = details.Select(d => d.MaterialId).Distinct().ToList();
+                var materials = db.MaterialMasters
+                    .Where(m => materialIds.Contains(m.MTRLID))
+                    .ToDictionary(m => m.MTRLID, m => m);
+
+                var hsnIds = materials.Values
+                    .Where(m => m.HSNID > 0)
+                    .Select(m => m.HSNID)
+                    .Distinct()
+                    .ToList();
+
+                var hsnMap = db.HSNCodeMasters
+                    .Where(h => hsnIds.Contains(h.HSNID))
+                    .ToDictionary(h => h.HSNID, h => h);
+
+                decimal totalGross = 0m;
+                decimal totalCgst = 0m;
+                decimal totalSgst = 0m;
+                decimal totalIgst = 0m;
+
+                foreach (var d in details)
+                {
+                    materials.TryGetValue(d.MaterialId, out var material);
+
+                    int hsnId = material != null ? material.HSNID : 0;
+                    hsnMap.TryGetValue(hsnId, out var hsn);
+
+                    decimal qty = d.Qty;
+                    decimal rate = d.Rate;
+                    decimal gross = d.Amount > 0 ? d.Amount : qty * rate;
+
+                    decimal cgstAmt = 0m;
+                    decimal sgstAmt = 0m;
+                    decimal igstAmt = 0m;
+
+                    if (hsn != null)
+                    {
+                        if (stateType == 0)
+                        {
+                            if (hsn.CGSTEXPRN > 0)
+                            {
+                                cgstAmt = Math.Round((gross * hsn.CGSTEXPRN) / 100m, 2);
+                            }
+
+                            if (hsn.SGSTEXPRN > 0)
+                            {
+                                sgstAmt = Math.Round((gross * hsn.SGSTEXPRN) / 100m, 2);
+                            }
+                        }
+                        else
+                        {
+                            if (hsn.IGSTEXPRN > 0)
+                            {
+                                igstAmt = Math.Round((gross * hsn.IGSTEXPRN) / 100m, 2);
+                            }
+                        }
+                    }
+
+                    totalGross += gross;
+                    totalCgst += cgstAmt;
+                    totalSgst += sgstAmt;
+                    totalIgst += igstAmt;
+                }
+
+                decimal net = totalGross + totalCgst + totalSgst + totalIgst;
+
+                return Json(new
+                {
+                    success = true,
+                    gross = totalGross,
+                    cgst = totalCgst,
+                    sgst = totalSgst,
+                    igst = totalIgst,
+                    net
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
         private void InsertDetails(TransactionMaster master, List<SalesOrderDetailRow> details)
         {
             if (details == null || !details.Any())
