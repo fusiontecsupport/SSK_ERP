@@ -209,6 +209,16 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label class="control-label">Rate <span class="req">*</span></label>
+                            @Html.TextBoxFor(m => m.RATE, new { @class = "form-control", @placeholder = "Enter rate", @id = "i_RATE", @autocomplete = "off" })
+                            @Html.ValidationMessageFor(m => m.RATE, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label class="control-label">Status</label>
                             @Html.DropDownListFor(model => model.DISPSTATUS, ViewBag.DISPSTATUS as List<SelectListItem>, new { @class = "form-control", @id = "statusDropdown" })
                         </div>
@@ -248,6 +258,7 @@
                 var materialGroup = $('#materialGroupDropdown').val();
                 var unit = $('#unitDropdown').val();
                 var hsnCode = $('#hsnCodeDropdown').val();
+                var rate = $('#i_RATE').val().trim();
                 
                 // Reset previous validation states
                 $('.form-control').removeClass('is-invalid');
@@ -277,6 +288,11 @@
                     isValid = false;
                 }
                 
+                if (!rate) {
+                    $('#i_RATE').addClass('is-invalid');
+                    isValid = false;
+                }
+                
                 if (!isValid) {
                     e.preventDefault();
                     // Scroll to first invalid field
@@ -300,7 +316,7 @@
             });
             
             // Real-time validation feedback
-            $('#i_MTRLCODE, #i_MTRLDESC, #materialGroupDropdown, #unitDropdown, #hsnCodeDropdown').on('input blur change', function() {
+            $('#i_MTRLCODE, #i_MTRLDESC, #i_RATE, #materialGroupDropdown, #unitDropdown, #hsnCodeDropdown').on('input blur change', function() {
                 var $this = $(this);
                 if ($this.val().trim()) {
                     $this.removeClass('is-invalid');

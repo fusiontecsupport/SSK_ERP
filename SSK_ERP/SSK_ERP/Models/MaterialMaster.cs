@@ -35,6 +35,10 @@ namespace SSK_ERP.Models
         [Range(typeof(decimal), "0", "9999999999999.99", ErrorMessage = "Please enter valid profit")]
         public decimal MTRLPRFT { get; set; }
 
+        [DisplayName("Rate")]
+        [Range(typeof(decimal), "0", "9999999999999.99", ErrorMessage = "Please enter valid rate")]
+        public decimal RATE { get; set; }
+
         [DisplayName("HSN Code")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select HSN code")]
         public int HSNID { get; set; }

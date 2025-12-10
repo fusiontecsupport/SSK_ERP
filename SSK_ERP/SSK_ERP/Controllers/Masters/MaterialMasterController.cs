@@ -40,7 +40,7 @@ namespace SSK_ERP.Controllers.Masters
             if (id != null && id > 0)
             {
                 tab = db.Database.SqlQuery<MaterialMaster>(
-                    @"SELECT MTRLID, MTRLGID, MTRLDESC, MTRLCODE, UNITID, MTRLPRFT, HSNID, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE 
+                    @"SELECT MTRLID, MTRLGID, MTRLDESC, MTRLCODE, UNITID, MTRLPRFT, RATE, HSNID, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE 
                       FROM MATERIALMASTER WHERE MTRLID = @p0", id).FirstOrDefault();
 
                 if (tab == null)
@@ -237,6 +237,10 @@ namespace SSK_ERP.Controllers.Masters
                 {
                     ModelState.AddModelError("MTRLPRFT", "Profit cannot be negative.");
                 }
+                if (tab.RATE < 0)
+                {
+                    ModelState.AddModelError("RATE", "Rate cannot be negative.");
+                }
 
                 if (ModelState.IsValid)
                 {
@@ -279,7 +283,7 @@ namespace SSK_ERP.Controllers.Masters
                         {
                             // Update existing
                             var existing = db.Database.SqlQuery<MaterialMaster>(
-                                @"SELECT MTRLID, MTRLGID, MTRLDESC, MTRLCODE, UNITID, MTRLPRFT, HSNID, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE 
+                                @"SELECT MTRLID, MTRLGID, MTRLDESC, MTRLCODE, UNITID, MTRLPRFT, RATE, HSNID, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE 
                                   FROM MATERIALMASTER WHERE MTRLID = @p0", tab.MTRLID
                             ).FirstOrDefault();
 
@@ -299,17 +303,19 @@ namespace SSK_ERP.Controllers.Masters
                                           MTRLCODE = @p2, 
                                           UNITID = @p3, 
                                           MTRLPRFT = @p4, 
-                                          HSNID = @p5, 
-                                          CUSRID = @p6, 
-                                          LMUSRID = @p7, 
-                                          DISPSTATUS = @p8, 
-                                          PRCSDATE = @p9 
-                                      WHERE MTRLID = @p10",
+                                          RATE = @p5, 
+                                          HSNID = @p6, 
+                                          CUSRID = @p7, 
+                                          LMUSRID = @p8, 
+                                          DISPSTATUS = @p9, 
+                                          PRCSDATE = @p10 
+                                      WHERE MTRLID = @p11",
                                     tab.MTRLGID,
                                     tab.MTRLDESC,
                                     tab.MTRLCODE,
                                     tab.UNITID,
                                     tab.MTRLPRFT,
+                                    tab.RATE,
                                     tab.HSNID,
                                     createdBy,
                                     currentUserName,
@@ -327,13 +333,14 @@ namespace SSK_ERP.Controllers.Masters
                             // Insert new
                             db.Database.ExecuteSqlCommand(
                                 @"INSERT INTO MATERIALMASTER 
-                                  (MTRLGID, MTRLDESC, MTRLCODE, UNITID, MTRLPRFT, HSNID, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE) 
-                                  VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9)",
+                                  (MTRLGID, MTRLDESC, MTRLCODE, UNITID, MTRLPRFT, RATE, HSNID, CUSRID, LMUSRID, DISPSTATUS, PRCSDATE) 
+                                  VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)",
                                 tab.MTRLGID,
                                 tab.MTRLDESC,
                                 tab.MTRLCODE,
                                 tab.UNITID,
                                 tab.MTRLPRFT,
+                                tab.RATE,
                                 tab.HSNID,
                                 currentUserName,
                                 currentUserName,
