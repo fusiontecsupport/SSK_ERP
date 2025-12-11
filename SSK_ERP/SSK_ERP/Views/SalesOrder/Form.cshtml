@@ -344,10 +344,15 @@
         </div>
 
         <div class="form-body">
-            @using (Html.BeginForm("savedata", "SalesOrder", FormMethod.Post, new { id = "salesOrderForm" }))
+            @{
+                var formAction = ViewBag.FormAction as string ?? "savedata";
+                var formController = ViewBag.FormController as string ?? "SalesOrder";
+            }
+            @using (Html.BeginForm(formAction, formController, FormMethod.Post, new { id = "salesOrderForm" }))
             {
                 @Html.AntiForgeryToken()
                 @Html.HiddenFor(m => m.TRANMID)
+                @Html.HiddenFor(m => m.TRANLMID)
 
                 <div class="section-title">
                     <i class="fa fa-info-circle"></i> Sales Order

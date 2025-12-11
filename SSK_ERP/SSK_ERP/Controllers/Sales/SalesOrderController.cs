@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using Newtonsoft.Json;
@@ -13,6 +14,7 @@ namespace SSK_ERP.Controllers
     {
         private readonly ApplicationDbContext db = new ApplicationDbContext();
         private const int SalesOrderRegisterId = 1;
+        private const int PurchaseRegisterId = 2;
 
         [Authorize(Roles = "SalesOrderIndex")]
         public ActionResult Index()
@@ -211,6 +213,14 @@ namespace SSK_ERP.Controllers
                         return RedirectToAction("Index");
                     }
 
+                    // Prevent editing a Sales Order once a PO has been created for it
+                    bool hasPo = db.TransactionMasters.Any(t => t.REGSTRID == PurchaseRegisterId && t.TRANLMID == existing.TRANMID);
+                    if (hasPo)
+                    {
+                        TempData["ErrorMessage"] = "This Sales Order already has a PO and cannot be edited.";
+                        return RedirectToAction("Index");
+                    }
+
                     existing.TRANDATE = master.TRANDATE;
                     existing.TRANTIME = master.TRANTIME;
                     existing.TRANREFID = master.TRANREFID;
@@ -268,30 +278,47 @@ namespace SSK_ERP.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetAjaxData(DateTime? fromDate, DateTime? toDate)
+        public JsonResult GetAjaxData(string fromDate = null, string toDate = null)
         {
             try
             {
-                var compyObj = Session["CompyId"] ?? Session["compyid"];
-                int compyId = compyObj != null ? Convert.ToInt32(compyObj) : 1;
+                // Base query: only Sales Orders. Company filter intentionally NOT applied
+                // so that the index always shows all Sales Orders as requested.
+                var query = db.TransactionMasters
+                    .Where(t => t.REGSTRID == SalesOrderRegisterId);
 
-                var query = db.TransactionMasters.Where(t => t.REGSTRID == SalesOrderRegisterId && t.COMPYID == compyId);
-
-                if (fromDate.HasValue)
+                // Optional date filters (values come as yyyy-MM-dd from <input type="date">)
+                DateTime parsedFromDate;
+                if (!string.IsNullOrWhiteSpace(fromDate) &&
+                    DateTime.TryParseExact(fromDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedFromDate))
                 {
-                    var fd = fromDate.Value.Date;
-                    query = query.Where(t => t.TRANDATE >= fd);
+                    query = query.Where(t => t.TRANDATE >= parsedFromDate);
                 }
 
-                if (toDate.HasValue)
+                DateTime parsedToDate;
+                if (!string.IsNullOrWhiteSpace(toDate) &&
+                    DateTime.TryParseExact(toDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedToDate))
                 {
-                    var td = toDate.Value.Date;
-                    query = query.Where(t => t.TRANDATE <= td);
+                    // include the full toDate day
+                    var exclusiveToDate = parsedToDate.Date.AddDays(1);
+                    query = query.Where(t => t.TRANDATE < exclusiveToDate);
                 }
 
-                var data = query
+                // Materialize masters first to avoid nested db-calls in LINQ-to-Entities
+                var masters = query
                     .OrderByDescending(t => t.TRANDATE)
                     .ThenByDescending(t => t.TRANMID)
+                    .ToList();
+
+                // Preload all Sales Orders that already have a PO
+                var linkedTranIds = db.TransactionMasters
+                    .Where(po => po.REGSTRID == PurchaseRegisterId && po.TRANLMID > 0)
+                    .Select(po => po.TRANLMID)
+                    .ToList();
+
+                var poLinkSet = new HashSet<int>(linkedTranIds.Cast<int>());
+
+                var data = masters
                     .Select(t => new
                     {
                         t.TRANMID,
@@ -299,7 +326,8 @@ namespace SSK_ERP.Controllers
                         t.TRANNO,
                         CustomerName = t.TRANREFNAME,
                         Amount = t.TRANNAMT,
-                        Status = t.DISPSTATUS == 0 ? "Enabled" : "Disabled"
+                        Status = t.DISPSTATUS == 0 ? "Enabled" : "Disabled",
+                        HasPo = poLinkSet.Contains(t.TRANMID)
                     })
                     .ToList();
 
@@ -367,6 +395,13 @@ namespace SSK_ERP.Controllers
                 if (existing == null)
                 {
                     return Json("Record not found");
+                }
+
+                // Prevent deleting a Sales Order once a PO has been created for it
+                bool hasPo = db.TransactionMasters.Any(t => t.REGSTRID == PurchaseRegisterId && t.TRANLMID == existing.TRANMID);
+                if (hasPo)
+                {
+                    return Json("Cannot delete this Sales Order because a PO has already been created.");
                 }
 
                 var details = db.TransactionDetails.Where(d => d.TRANMID == existing.TRANMID).ToList();
