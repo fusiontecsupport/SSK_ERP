@@ -674,7 +674,7 @@ namespace SSK_ERP.Controllers
             master.TRANSGSTAMT = totalSgst;
             master.TRANIGSTAMT = totalIgst;
             master.TRANNAMT = totalNet;
-            master.TRANPCOUNT = details.Count;
+            master.TRANPCOUNT = 0;
             master.TRANAMTWRDS = ConvertAmountToWords(totalNet);
 
             db.SaveChanges();
