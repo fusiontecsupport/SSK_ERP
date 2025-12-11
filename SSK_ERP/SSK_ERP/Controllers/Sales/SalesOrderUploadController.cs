@@ -2,6 +2,10 @@ using System;
 using System.Web;
 using System.Web.Mvc;
 using System.IO;
+using System.Text;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using SSK_ERP.Filters;
 
 namespace SSK_ERP.Controllers
@@ -33,11 +37,44 @@ namespace SSK_ERP.Controllers
                 return View();
             }
 
-            // Placeholder: file is received but not yet processed or saved.
-            // This keeps the workflow complete without affecting existing data.
-            TempData["SuccessMessage"] = "File received successfully. Upload processing will be implemented soon.";
+            string extractedText = string.Empty;
 
-            return RedirectToAction("Index");
+            try
+            {
+                file.InputStream.Position = 0;
+
+                using (var ms = new MemoryStream())
+                {
+                    file.InputStream.CopyTo(ms);
+                    ms.Position = 0;
+
+                    using (var reader = new PdfReader(ms))
+                    using (var pdfDoc = new PdfDocument(reader))
+                    {
+                        var sb = new StringBuilder();
+                        int totalPages = pdfDoc.GetNumberOfPages();
+
+                        for (int page = 1; page <= totalPages; page++)
+                        {
+                            var strategy = new SimpleTextExtractionStrategy();
+                            string pageText = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page), strategy);
+                            sb.AppendLine(pageText);
+                        }
+
+                        extractedText = sb.ToString();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "There was a problem reading the PDF file.";
+                return View();
+            }
+
+            ViewBag.ExtractedText = extractedText;
+            TempData["SuccessMessage"] = "File uploaded and text extracted successfully.";
+
+            return View();
         }
     }
 }
