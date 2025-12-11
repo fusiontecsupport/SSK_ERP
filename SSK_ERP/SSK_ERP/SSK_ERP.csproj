@@ -311,6 +311,7 @@
     <Compile Include="Controllers\Masters\PackingMasterController.cs" />
     <Compile Include="Controllers\NavbarController.cs" />
     <Compile Include="Controllers\Sales\SalesOrderController.cs" />
+    <Compile Include="Controllers\Sales\SalesOrderUploadController.cs" />
     <Compile Include="Controllers\Purchase\PurchaseOrderController.cs" />
     <!-- Excluded per cleanup -->
     <!-- <Compile Include="Controllers\ProfileMasterController.cs" /> -->
@@ -1145,6 +1146,7 @@
     <Content Include="Content\bootstrap-grid.rtl.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="Views\SalesOrderUpload\Index.cshtml" />
     <EntityDeploy Include="Data\SSK_ERP.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>SSK_ERP.Designer.cs</LastGenOutput>

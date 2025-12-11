@@ -1,0 +1,82 @@
+@{
+    ViewBag.Title = "Sales Order Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .upload-main-container {
+        background: white;
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .upload-content-wrapper {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 20px;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    }
+
+    .upload-header-section {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .upload-header-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .upload-body {
+        padding: 30px;
+        background: white;
+    }
+</style>
+
+<div class="upload-main-container">
+    <div class="upload-content-wrapper">
+        <div class="upload-header-section">
+            <h1 class="upload-header-title">
+                <i class="fa fa-upload"></i>
+                Sales Order Upload
+            </h1>
+        </div>
+        <div class="upload-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+
+            @using (Html.BeginForm("Index", "SalesOrderUpload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label for="file">Select File (PDF only)</label>
+                    <input type="file" id="file" name="file" class="form-control" accept="application/pdf,.pdf" />
+                    <small class="text-muted">Only PDF files (.pdf) are allowed.</small>
+                </div>
+
+                <div class="form-actions">
+                    <a href="@Url.Action("Index", "SalesOrder")" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-upload"></i> Upload
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
