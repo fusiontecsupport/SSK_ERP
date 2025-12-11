@@ -61,6 +61,52 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    .so-add-menu-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .so-add-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 8px 0;
+        min-width: 180px;
+        z-index: 1050;
+        display: none;
+    }
+
+    .so-add-menu.show {
+        display: block;
+    }
+
+    .so-add-menu-btn {
+        width: 100%;
+        border: none;
+        background: transparent;
+        padding: 10px 18px;
+        text-align: left;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #333333;
+    }
+
+    .so-add-menu-btn i {
+        width: 18px;
+        text-align: center;
+    }
+
+    .so-add-menu-btn:hover {
+        background-color: #f5f7ff;
+        color: #111111;
+    }
+
     #salesOrderTable {
         border-collapse: separate;
         border-spacing: 0;
@@ -155,9 +201,21 @@
                     <i class="bi bi-receipt-cutoff"></i>
                     Sales Order
                 </h1>
-                <a href="@Url.Action("Form", "SalesOrder")" class="btn so-add-btn">
-                    <i class="fa fa-plus-circle"></i> Add Sales Order
-                </a>
+                <div class="so-add-menu-wrapper">
+                    <button type="button" id="addSalesOrderBtn" class="btn so-add-btn">
+                        <i class="fa fa-plus-circle"></i> Add Sales Order
+                    </button>
+                    <div id="addSalesOrderMenu" class="so-add-menu">
+                        <button type="button" id="btnAddDirect" class="so-add-menu-btn">
+                            <i class="fa fa-edit"></i>
+                            <span>Direct</span>
+                        </button>
+                        <button type="button" id="btnAddUpload" class="so-add-menu-btn">
+                            <i class="fa fa-upload"></i>
+                            <span>Upload</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -333,6 +391,28 @@
                     $btn.prop('disabled', false);
                     updateFilterStatus();
                 });
+            });
+
+            var addMenu = $('#addSalesOrderMenu');
+
+            $('#addSalesOrderBtn').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                addMenu.toggleClass('show');
+            });
+
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('.so-add-menu-wrapper').length) {
+                    addMenu.removeClass('show');
+                }
+            });
+
+            $('#btnAddDirect').on('click', function () {
+                window.location.href = '@Url.Action("Form", "SalesOrder")';
+            });
+
+            $('#btnAddUpload').on('click', function () {
+                alert('Upload option will be available soon.');
             });
 
             $('#clearBtn').on('click', function () {
