@@ -221,6 +221,7 @@ namespace SSK_ERP.Controllers
                     existing.DISPSTATUS = master.DISPSTATUS;
                     existing.LMUSRID = userName;
                     existing.PRCSDATE = DateTime.Now;
+                    existing.TRANPCOUNT = 0;
 
                     var existingDetails = db.TransactionDetails.Where(d => d.TRANMID == existing.TRANMID).ToList();
                     if (existingDetails.Any())
@@ -248,6 +249,7 @@ namespace SSK_ERP.Controllers
                     master.CUSRID = userName;
                     master.LMUSRID = userName;
                     master.PRCSDATE = DateTime.Now;
+                    master.TRANPCOUNT = 0;
 
                     db.TransactionMasters.Add(master);
                     db.SaveChanges();
@@ -655,7 +657,7 @@ namespace SSK_ERP.Controllers
                     TRANDSGSTAMT = sgstAmt,
                     TRANDIGSTAMT = igstAmt,
                     TRANDNAMT = net,
-                    TRANDAID = lineIndex,
+                    TRANDAID = 0,
                     TRANDNARTN = null,
                     TRANDRMKS = null
                 };
