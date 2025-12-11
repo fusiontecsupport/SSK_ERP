@@ -310,6 +310,7 @@
     <Compile Include="Controllers\Masters\MaterialMasterController.cs" />
     <Compile Include="Controllers\Masters\PackingMasterController.cs" />
     <Compile Include="Controllers\NavbarController.cs" />
+    <Compile Include="Controllers\RenewalApprovalController.cs" />
     <Compile Include="Controllers\Sales\SalesOrderController.cs" />
     <Compile Include="Controllers\Sales\SalesOrderUploadController.cs" />
     <Compile Include="Controllers\Purchase\PurchaseOrderController.cs" />

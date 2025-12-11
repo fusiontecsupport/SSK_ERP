@@ -83,6 +83,16 @@
                 <hr />
                 <h4>Extracted Text</h4>
                 <pre style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e2e6ea; max-height: 400px; overflow-y: auto;">@ViewBag.ExtractedText</pre>
+
+                using (Html.BeginForm("SaveTemp", "SalesOrderUpload", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("extractedText", (string)ViewBag.ExtractedText)
+                    @Html.Hidden("originalFileName", (string)ViewBag.OriginalFileName)
+                    <button type="submit" class="btn btn-success" style="margin-top:15px;">
+                        <i class="fa fa-save"></i> Save
+                    </button>
+                }
             }
         </div>
     </div>
