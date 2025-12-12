@@ -376,7 +376,7 @@
                 @Html.HiddenFor(m => m.TRANLMID)
 
                 <div class="section-title">
-                    <i class="fa fa-info-circle"></i> Sales Order
+                    <i class="fa fa-info-circle"></i> @(isPoFromSalesOrder ? "Purchase Order" : "Sales Order")
                 </div>
                 <div class="row">
                     <div class="col-md-4">
@@ -494,7 +494,7 @@
                     </div>
                 </div>
 
-                <div class="section-title">Customer Order Details</div>
+                <div class="section-title">@(isPoFromSalesOrder ? "Purchase Order Details" : "Customer Order Details")</div>
 
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered align-middle so-detail-table">
