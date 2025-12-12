@@ -61,6 +61,16 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    .dataTables_filter.with-filter-status {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .dataTables_filter.with-filter-status #filterStatus {
+        margin-bottom: 4px;
+    }
+
     .so-add-menu-wrapper {
         position: relative;
         display: inline-block;
@@ -289,6 +299,10 @@
                         d.toDate = $('#toDate').val();
                     },
                     error: function (xhr, status, err) {
+                        // Ignore aborted requests (for example when a reload cancels a previous call)
+                        if (status === 'abort') {
+                            return;
+                        }
                         console.error('SalesOrder GetAjaxData error:', status, err, xhr && xhr.responseText);
                         alert('Failed to load Sales Orders. Please check console for details.');
                     }
@@ -456,13 +470,24 @@
             });
 
             var today = new Date();
-            var thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(today.getDate() - 30);
+            var todayStr = today.toISOString().split('T')[0];
 
-            $('#toDate').val(today.toISOString().split('T')[0]);
-            $('#fromDate').val(thirtyDaysAgo.toISOString().split('T')[0]);
+            // Default both From and To dates to today
+            $('#fromDate').val(todayStr);
+            $('#toDate').val(todayStr);
+
+            // Move filter status above the DataTables search box
+            var soFilterWrapper = $('#salesOrderTable').closest('.dataTables_wrapper').find('.dataTables_filter');
+            if (soFilterWrapper.length) {
+                var soFilterStatus = $('#filterStatus');
+                soFilterWrapper.prepend(soFilterStatus);
+                soFilterWrapper.addClass('with-filter-status');
+            }
 
             updateFilterStatus();
+
+            // Apply the default date filter immediately
+            table.ajax.reload();
 
             $(document).on('click', 'a.editor_remove', function (e) {
                 e.preventDefault();

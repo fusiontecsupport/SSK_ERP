@@ -44,6 +44,16 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    .dataTables_filter.with-filter-status {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .dataTables_filter.with-filter-status #filterStatus {
+        margin-bottom: 4px;
+    }
+
     #purchaseOrderTable {
         border-collapse: separate;
         border-spacing: 0;
@@ -215,6 +225,10 @@
                         d.toDate = $('#toDate').val();
                     },
                     error: function (xhr, status, err) {
+                        // Ignore aborted requests (for example when a reload cancels a previous call)
+                        if (status === 'abort') {
+                            return;
+                        }
                         console.error('PurchaseOrder GetAjaxData error:', status, err, xhr && xhr.responseText);
                         alert('Failed to load Purchase Orders. Please check console for details.');
                     }
@@ -382,13 +396,24 @@
             });
 
             var today = new Date();
-            var thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(today.getDate() - 30);
+            var todayStr = today.toISOString().split('T')[0];
 
-            $('#toDate').val(today.toISOString().split('T')[0]);
-            $('#fromDate').val(thirtyDaysAgo.toISOString().split('T')[0]);
+            // Default both From and To dates to today
+            $('#fromDate').val(todayStr);
+            $('#toDate').val(todayStr);
+
+            // Move filter status above the DataTables search box
+            var poFilterWrapper = $('#purchaseOrderTable').closest('.dataTables_wrapper').find('.dataTables_filter');
+            if (poFilterWrapper.length) {
+                var poFilterStatus = $('#filterStatus');
+                poFilterWrapper.prepend(poFilterStatus);
+                poFilterWrapper.addClass('with-filter-status');
+            }
 
             updateFilterStatus();
+
+            // Apply the default date filter immediately
+            table.ajax.reload();
 
             $(document).on('click', 'a.po_delete', function (e) {
                 e.preventDefault();
