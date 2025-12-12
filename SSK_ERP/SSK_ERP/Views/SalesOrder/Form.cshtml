@@ -383,13 +383,13 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Customer Name</label>
+                            <label>@(isPoFromSalesOrder ? "Supplier Name" : "Customer Name")</label>
                             @if (isPoFromSalesOrder)
                             {
                                 @Html.DropDownListFor(m => m.TRANREFID,
                                     ViewBag.CustomerList as SelectList,
-                                    "-- Select Customer --",
-                                    new { @class = "form-control", id = "customerDropdown", disabled = "disabled" })
+                                    "-- Select Supplier --",
+                                    new { @class = "form-control", id = "customerDropdown" })
                             }
                             else
                             {
@@ -698,11 +698,13 @@
 
                     var currentId = $ddl.val();
                     if (currentId && parseInt(currentId, 10) > 0) {
-                        fetchCustomerDetails(currentId);
-                    }
-
-                    if (isPoFromSalesOrder) {
-                        $ddl.prop('disabled', true);
+                        if (isPoFromSalesOrder) {
+                            // PO from Sales Order: treat dropdown as Supplier and load supplier address details
+                            fetchSupplierDetails(currentId);
+                        } else {
+                            // Normal Sales Order: load customer address details
+                            fetchCustomerDetails(currentId);
+                        }
                     }
                 }
             }
@@ -764,6 +766,26 @@
                 }
 
                 $.getJSON('@Url.Action("GetCustomerDetails", "SalesOrder")', { id: customerId })
+                    .done(function (resp) {
+                        if (!resp || resp.success === false) {
+                            clearCustomerDetails();
+                            return;
+                        }
+
+                        applyCustomerDetails(resp.data);
+                    })
+                    .fail(function () {
+                        clearCustomerDetails();
+                    });
+            }
+
+            function fetchSupplierDetails(supplierId) {
+                if (!supplierId) {
+                    clearCustomerDetails();
+                    return;
+                }
+
+                $.getJSON('@Url.Action("GetSupplierDetailsForPo", "PurchaseOrder")', { id: supplierId })
                     .done(function (resp) {
                         if (!resp || resp.success === false) {
                             clearCustomerDetails();
@@ -1314,7 +1336,14 @@
                         clearCustomerDetails();
                         return;
                     }
-                    fetchCustomerDetails(id);
+
+                    if (!isPoFromSalesOrder) {
+                        // Normal Sales Order: load customer address details
+                        fetchCustomerDetails(id);
+                    } else {
+                        // PO from Sales Order: load supplier address details
+                        fetchSupplierDetails(id);
+                    }
                 });
 
                 $('#TRANDATE, #customerDropdown').on('change input', function () {

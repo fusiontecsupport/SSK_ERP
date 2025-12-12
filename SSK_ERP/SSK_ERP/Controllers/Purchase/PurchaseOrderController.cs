@@ -73,17 +73,42 @@ namespace SSK_ERP.Controllers.Purchase
                 master.DISPSTATUS.ToString()
             );
 
-            var customerList = db.CustomerMasters
-                .Where(c => c.DISPSTATUS == 0)
-                .OrderBy(c => c.CATENAME)
-                .Select(c => new
-                {
-                    c.CATEID,
-                    c.CATENAME
-                })
-                .ToList();
+            // Determine whether this PO is linked to a Supplier or a Customer.
+            var linkedSupplier = db.SupplierMasters
+                .FirstOrDefault(s => s.CATEID == master.TRANREFID && (s.DISPSTATUS == 0 || s.DISPSTATUS == null));
 
-            ViewBag.CustomerList = new SelectList(customerList, "CATEID", "CATENAME", master.TRANREFID);
+            if (linkedSupplier != null)
+            {
+                // Supplier-based PO (new flow). Populate dropdown with suppliers and treat as PO-from-Sales (Supplier Name).
+                var supplierList = db.SupplierMasters
+                    .Where(s => s.DISPSTATUS == 0 || s.DISPSTATUS == null)
+                    .OrderBy(s => s.CATENAME)
+                    .Select(s => new
+                    {
+                        s.CATEID,
+                        Name = s.CATENAME
+                    })
+                    .ToList();
+
+                ViewBag.CustomerList = new SelectList(supplierList, "CATEID", "Name", master.TRANREFID);
+                ViewBag.IsPoFromSalesOrder = true;
+            }
+            else
+            {
+                // Legacy PO that still references a Customer. Use customers list and normal Sales Order behaviour.
+                var customerList = db.CustomerMasters
+                    .Where(c => c.DISPSTATUS == 0)
+                    .OrderBy(c => c.CATENAME)
+                    .Select(c => new
+                    {
+                        c.CATEID,
+                        c.CATENAME
+                    })
+                    .ToList();
+
+                ViewBag.CustomerList = new SelectList(customerList, "CATEID", "CATENAME", master.TRANREFID);
+                ViewBag.IsPoFromSalesOrder = false;
+            }
 
             ViewBag.StateTypeList = new SelectList(
                 new[]
@@ -102,7 +127,6 @@ namespace SSK_ERP.Controllers.Purchase
 
             ViewBag.FormAction = "SavePoEdit";
             ViewBag.FormController = "PurchaseOrder";
-            ViewBag.IsPoFromSalesOrder = true;
 
             return View("~/Views/SalesOrder/Form.cshtml", master);
         }
@@ -196,9 +220,10 @@ namespace SSK_ERP.Controllers.Purchase
                 TRANTIME = DateTime.Now,
                 TRANNO = nextTranNo,
                 TRANDNO = nextTranNo.ToString("D4"),
-                TRANREFID = source.TRANREFID,
-                TRANREFNAME = source.TRANREFNAME,
-                TRANSTATETYPE = source.TRANSTATETYPE,
+                // For PO from Sales Order, the supplier will be chosen on the form; start with no reference selected.
+                TRANREFID = 0,
+                TRANREFNAME = null,
+                TRANSTATETYPE = 0,
                 TRANREFNO = source.TRANREFNO,
                 TRANLMID = source.TRANMID,
                 DISPSTATUS = 0
@@ -230,17 +255,18 @@ namespace SSK_ERP.Controllers.Purchase
                 model.DISPSTATUS.ToString()
             );
 
-            var customerList = db.CustomerMasters
-                .Where(c => c.DISPSTATUS == 0)
-                .OrderBy(c => c.CATENAME)
-                .Select(c => new
+            // For PO created from Sales Order, bind the dropdown to active suppliers so the user can pick a Supplier Name.
+            var supplierList = db.SupplierMasters
+                .Where(s => s.DISPSTATUS == 0 || s.DISPSTATUS == null)
+                .OrderBy(s => s.CATENAME)
+                .Select(s => new
                 {
-                    c.CATEID,
-                    c.CATENAME
+                    s.CATEID,
+                    Name = s.CATENAME
                 })
                 .ToList();
 
-            ViewBag.CustomerList = new SelectList(customerList, "CATEID", "CATENAME", model.TRANREFID);
+            ViewBag.CustomerList = new SelectList(supplierList, "CATEID", "Name", model.TRANREFID);
 
             ViewBag.StateTypeList = new SelectList(
                 new[]
@@ -325,22 +351,43 @@ namespace SSK_ERP.Controllers.Purchase
                     : "System";
 
                 short tranStateType = 0;
-                if (source.TRANREFID <= 0)
-                {
-                    TempData["ErrorMessage"] = "Source Sales Order has no customer.";
-                    return RedirectToAction("Index", "SalesOrder");
-                }
 
-                var customer = db.CustomerMasters.FirstOrDefault(c => c.CATEID == source.TRANREFID);
-                if (customer != null)
+                // If a supplier has been selected on the PO form, prefer that as the reference.
+                if (master.TRANREFID > 0)
                 {
-                    master.TRANREFID = customer.CATEID;
-                    master.TRANREFNAME = customer.CATENAME;
-
-                    var state = db.StateMasters.FirstOrDefault(s => s.STATEID == customer.STATEID);
-                    if (state != null)
+                    var supplier = db.SupplierMasters.FirstOrDefault(s => s.CATEID == master.TRANREFID);
+                    if (supplier != null)
                     {
-                        tranStateType = state.STATETYPE;
+                        master.TRANREFID = supplier.CATEID;
+                        master.TRANREFNAME = supplier.CATENAME;
+
+                        var state = db.StateMasters.FirstOrDefault(s => s.STATEID == supplier.STATEID);
+                        if (state != null)
+                        {
+                            tranStateType = state.STATETYPE;
+                        }
+                    }
+                }
+                else
+                {
+                    // Fallback to original behaviour using the Sales Order customer
+                    if (source.TRANREFID <= 0)
+                    {
+                        TempData["ErrorMessage"] = "Source Sales Order has no customer.";
+                        return RedirectToAction("Index", "SalesOrder");
+                    }
+
+                    var customer = db.CustomerMasters.FirstOrDefault(c => c.CATEID == source.TRANREFID);
+                    if (customer != null)
+                    {
+                        master.TRANREFID = customer.CATEID;
+                        master.TRANREFNAME = customer.CATENAME;
+
+                        var state = db.StateMasters.FirstOrDefault(s => s.STATEID == customer.STATEID);
+                        if (state != null)
+                        {
+                            tranStateType = state.STATETYPE;
+                        }
                     }
                 }
 
@@ -393,6 +440,44 @@ namespace SSK_ERP.Controllers.Purchase
             {
                 TempData["ErrorMessage"] = ex.Message;
                 return RedirectToAction("Index", "SalesOrder");
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetSupplierDetailsForPo(int id)
+        {
+            try
+            {
+                var supplier = db.SupplierMasters.FirstOrDefault(s => s.CATEID == id && (s.DISPSTATUS == 0 || s.DISPSTATUS == null));
+                if (supplier == null)
+                {
+                    return Json(new { success = false, message = "Supplier not found." }, JsonRequestBehavior.AllowGet);
+                }
+
+                var location = db.LocationMasters.FirstOrDefault(l => l.LOCTID == supplier.LOCTID);
+                var state = db.StateMasters.FirstOrDefault(s => s.STATEID == supplier.STATEID);
+
+                var data = new
+                {
+                    Id = supplier.CATEID,
+                    Name = supplier.CATENAME,
+                    Address1 = supplier.CATEADDR1,
+                    Address2 = supplier.CATEADDR2,
+                    Address3 = supplier.CATEADDR3,
+                    Address4 = supplier.CATEADDR4,
+                    Pincode = supplier.CATEADDR5,
+                    City = location != null ? location.LOCTDESC : string.Empty,
+                    State = state != null ? state.STATEDESC : string.Empty,
+                    StateCode = state != null ? state.STATECODE : string.Empty,
+                    StateType = state != null ? state.STATETYPE : (short)0,
+                    Country = "India"
+                };
+
+                return Json(new { success = true, data }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
