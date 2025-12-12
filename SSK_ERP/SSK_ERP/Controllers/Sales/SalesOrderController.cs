@@ -22,6 +22,109 @@ namespace SSK_ERP.Controllers
             return View();
         }
 
+        [Authorize(Roles = "SalesOrderPrint")]
+        public ActionResult Print(int id)
+        {
+            try
+            {
+                var master = db.TransactionMasters.FirstOrDefault(t => t.TRANMID == id && t.REGSTRID == SalesOrderRegisterId);
+                if (master == null)
+                {
+                    TempData["ErrorMessage"] = "Sales Order not found.";
+                    return RedirectToAction("Index");
+                }
+
+                var customer = db.CustomerMasters.FirstOrDefault(c => c.CATEID == master.TRANREFID);
+                LocationMaster location = null;
+                StateMaster state = null;
+
+                if (customer != null)
+                {
+                    location = db.LocationMasters.FirstOrDefault(l => l.LOCTID == customer.LOCTID);
+                    state = db.StateMasters.FirstOrDefault(s => s.STATEID == customer.STATEID);
+                }
+
+                var details = db.TransactionDetails
+                    .Where(d => d.TRANMID == master.TRANMID)
+                    .OrderBy(d => d.TRANDID)
+                    .ToList();
+
+                var materialIds = details
+                    .Select(d => d.TRANDREFID)
+                    .Distinct()
+                    .ToList();
+
+                var materials = db.MaterialMasters
+                    .Where(m => materialIds.Contains(m.MTRLID))
+                    .ToDictionary(m => m.MTRLID, m => m);
+
+                var groupIds = materials.Values
+                    .Select(m => m.MTRLGID)
+                    .Distinct()
+                    .ToList();
+
+                var groups = db.MaterialGroupMasters
+                    .Where(g => groupIds.Contains(g.MTRLGID))
+                    .ToDictionary(g => g.MTRLGID, g => g);
+
+                var items = details
+                    .Select(d =>
+                    {
+                        MaterialMaster material;
+                        materials.TryGetValue(d.TRANDREFID, out material);
+
+                        MaterialGroupMaster group = null;
+                        if (material != null)
+                        {
+                            groups.TryGetValue(material.MTRLGID, out group);
+                        }
+
+                        return new SalesOrderPrintItemViewModel
+                        {
+                            MaterialName = d.TRANDREFNAME,
+                            MaterialGroupName = group != null ? group.MTRLGDESC : string.Empty,
+                            ProfitPercent = d.TRANDMTRLPRFT,
+                            Qty = d.TRANDQTY,
+                            Rate = d.TRANDRATE,
+                            ActualRate = d.TRANDARATE,
+                            Amount = d.TRANDNAMT
+                        };
+                    })
+                    .ToList();
+
+                var model = new SalesOrderPrintViewModel
+                {
+                    TRANMID = master.TRANMID,
+                    TRANNO = master.TRANNO,
+                    TRANDNO = master.TRANDNO,
+                    TRANREFNO = master.TRANREFNO,
+                    TRANDATE = master.TRANDATE,
+                    CustomerName = customer != null ? customer.CATENAME : master.TRANREFNAME,
+                    CustomerCode = customer != null ? customer.CATECODE : string.Empty,
+                    Address1 = customer != null ? customer.CATEADDR1 : string.Empty,
+                    Address2 = customer != null ? customer.CATEADDR2 : string.Empty,
+                    Address3 = customer != null ? customer.CATEADDR3 : string.Empty,
+                    Address4 = customer != null ? customer.CATEADDR4 : string.Empty,
+                    City = location != null ? location.LOCTDESC : string.Empty,
+                    Pincode = customer != null ? customer.CATEADDR5 : string.Empty,
+                    State = state != null ? state.STATEDESC : string.Empty,
+                    StateCode = state != null ? state.STATECODE : string.Empty,
+                    GstNo = customer != null ? customer.CATE_GST_NO : string.Empty,
+                    GrossAmount = master.TRANGAMT,
+                    NetAmount = master.TRANNAMT,
+                    AmountInWords = ConvertAmountToWords(master.TRANNAMT),
+                    Items = items
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading Sales Order: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         [Authorize(Roles = "SalesOrderCreate,SalesOrderEdit")]
         public ActionResult Form(int? id)
         {
@@ -799,5 +902,43 @@ namespace SSK_ERP.Controllers
 
             base.Dispose(disposing);
         }
+    }
+
+    public class SalesOrderPrintItemViewModel
+    {
+        public string MaterialName { get; set; }
+        public string MaterialGroupName { get; set; }
+        public decimal ProfitPercent { get; set; }
+        public decimal Qty { get; set; }
+        public decimal Rate { get; set; }
+        public decimal ActualRate { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    public class SalesOrderPrintViewModel
+    {
+        public int TRANMID { get; set; }
+        public int TRANNO { get; set; }
+        public string TRANDNO { get; set; }
+        public string TRANREFNO { get; set; }
+        public DateTime TRANDATE { get; set; }
+
+        public string CustomerName { get; set; }
+        public string CustomerCode { get; set; }
+        public string Address1 { get; set; }
+        public string Address2 { get; set; }
+        public string Address3 { get; set; }
+        public string Address4 { get; set; }
+        public string City { get; set; }
+        public string Pincode { get; set; }
+        public string State { get; set; }
+        public string StateCode { get; set; }
+        public string GstNo { get; set; }
+
+        public decimal GrossAmount { get; set; }
+        public decimal NetAmount { get; set; }
+        public string AmountInWords { get; set; }
+
+        public List<SalesOrderPrintItemViewModel> Items { get; set; }
     }
 }

@@ -27,7 +27,137 @@ namespace SSK_ERP.Controllers.Purchase
             return View();
         }
 
-        [Authorize(Roles = "SalesOrderCreate,SalesOrderEdit,PurchaseOrderCreate,PurchaseOrderEdit")]
+        [Authorize(Roles = "PurchaseOrderCreate,PurchaseOrderEdit")]
+        public ActionResult PoEdit(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["ErrorMessage"] = "Invalid Purchase Order.";
+                return RedirectToAction("Index");
+            }
+
+            var master = db.TransactionMasters.FirstOrDefault(t => t.TRANMID == id && t.REGSTRID == PurchaseRegisterId);
+            if (master == null)
+            {
+                TempData["ErrorMessage"] = "Purchase Order not found.";
+                return RedirectToAction("Index");
+            }
+
+            var detailRows = new List<PurchaseOrderDetailRow>();
+            var details = db.TransactionDetails
+                .Where(d => d.TRANMID == master.TRANMID)
+                .OrderBy(d => d.TRANDID)
+                .ToList();
+
+            foreach (var d in details)
+            {
+                detailRows.Add(new PurchaseOrderDetailRow
+                {
+                    MaterialId = d.TRANDREFID,
+                    Qty = d.TRANDQTY,
+                    Rate = d.TRANDRATE,
+                    Amount = d.TRANDGAMT,
+                    ProfitPercent = d.TRANDMTRLPRFT,
+                    ActualRate = d.TRANDARATE
+                });
+            }
+
+            ViewBag.StatusList = new SelectList(
+                new[]
+                {
+                    new { Value = "0", Text = "Enabled" },
+                    new { Value = "1", Text = "Disabled" }
+                },
+                "Value",
+                "Text",
+                master.DISPSTATUS.ToString()
+            );
+
+            var customerList = db.CustomerMasters
+                .Where(c => c.DISPSTATUS == 0)
+                .OrderBy(c => c.CATENAME)
+                .Select(c => new
+                {
+                    c.CATEID,
+                    c.CATENAME
+                })
+                .ToList();
+
+            ViewBag.CustomerList = new SelectList(customerList, "CATEID", "CATENAME", master.TRANREFID);
+
+            ViewBag.StateTypeList = new SelectList(
+                new[]
+                {
+                    new { Value = "0", Text = "Local" },
+                    new { Value = "1", Text = "Interstate" }
+                },
+                "Value",
+                "Text",
+                master.TRANSTATETYPE.ToString()
+            );
+
+            ViewBag.DetailRowsJson = detailRows.Any()
+                ? JsonConvert.SerializeObject(detailRows)
+                : "[]";
+
+            ViewBag.FormAction = "SavePoEdit";
+            ViewBag.FormController = "PurchaseOrder";
+            ViewBag.IsPoFromSalesOrder = true;
+
+            return View("~/Views/SalesOrder/Form.cshtml", master);
+        }
+
+        [HttpGet]
+        public JsonResult GetAjaxData(string fromDate = null, string toDate = null)
+        {
+            try
+            {
+                var query = db.TransactionMasters
+                    .Where(t => t.REGSTRID == PurchaseRegisterId);
+
+                DateTime parsedFromDate;
+                if (!string.IsNullOrWhiteSpace(fromDate) &&
+                    DateTime.TryParse(fromDate, out parsedFromDate))
+                {
+                    query = query.Where(t => t.TRANDATE >= parsedFromDate);
+                }
+
+                DateTime parsedToDate;
+                if (!string.IsNullOrWhiteSpace(toDate) &&
+                    DateTime.TryParse(toDate, out parsedToDate))
+                {
+                    var exclusiveToDate = parsedToDate.Date.AddDays(1);
+                    query = query.Where(t => t.TRANDATE < exclusiveToDate);
+                }
+
+                var masters = query
+                    .OrderByDescending(t => t.TRANDATE)
+                    .ThenByDescending(t => t.TRANMID)
+                    .ToList();
+
+                var data = masters
+                    .Select(t => new
+                    {
+                        t.TRANMID,
+                        t.TRANDATE,
+                        t.TRANNO,
+                        PONo = t.TRANREFNO,
+                        PODate = t.PRCSDATE,
+                        SupplierName = t.TRANREFNAME,
+                        Amount = t.TRANNAMT,
+                        Status = t.DISPSTATUS == 0 ? "Enabled" : "Disabled"
+                    })
+                    .ToList();
+
+                return Json(new { data }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = new object[0], error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize(Roles = "SalesOrderCreate,SalesOrderEdit,PurchaseOrderCreate,PurchaseOrderEdit,SalesOrderPO")]
         public ActionResult PoForm(int id)
         {
             if (id <= 0)
@@ -129,13 +259,14 @@ namespace SSK_ERP.Controllers.Purchase
 
             ViewBag.FormAction = "SavePoFromSalesOrder";
             ViewBag.FormController = "PurchaseOrder";
+            ViewBag.IsPoFromSalesOrder = true;
 
             return View("~/Views/SalesOrder/Form.cshtml", model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "SalesOrderCreate,SalesOrderEdit,PurchaseOrderCreate,PurchaseOrderEdit")]
+        [Authorize(Roles = "SalesOrderCreate,SalesOrderEdit,PurchaseOrderCreate,PurchaseOrderEdit,SalesOrderPO")]
         public ActionResult SavePoFromSalesOrder(TransactionMaster master, string detailRowsJson)
         {
             try
@@ -153,6 +284,13 @@ namespace SSK_ERP.Controllers.Purchase
                     return RedirectToAction("Index", "SalesOrder");
                 }
 
+                var source = db.TransactionMasters.FirstOrDefault(t => t.TRANMID == master.TRANLMID && t.REGSTRID == SalesOrderRegisterId);
+                if (source == null)
+                {
+                    TempData["ErrorMessage"] = "Source Sales Order not found.";
+                    return RedirectToAction("Index", "SalesOrder");
+                }
+
                 var details = string.IsNullOrWhiteSpace(detailRowsJson)
                     ? new List<PurchaseOrderDetailRow>()
                     : JsonConvert.DeserializeObject<List<PurchaseOrderDetailRow>>(detailRowsJson) ?? new List<PurchaseOrderDetailRow>();
@@ -160,6 +298,18 @@ namespace SSK_ERP.Controllers.Purchase
                 details = details
                     .Where(d => d != null && d.MaterialId > 0 && d.Qty > 0 && d.Rate >= 0)
                     .ToList();
+
+                var sourceDetails = db.TransactionDetails
+                    .Where(d => d.TRANMID == source.TRANMID)
+                    .OrderBy(d => d.TRANDID)
+                    .ToList();
+
+                for (int i = 0; i < details.Count && i < sourceDetails.Count; i++)
+                {
+                    details[i].MaterialId = sourceDetails[i].TRANDREFID;
+                }
+
+                details = details.Take(sourceDetails.Count).ToList();
 
                 if (!details.Any())
                 {
@@ -174,14 +324,14 @@ namespace SSK_ERP.Controllers.Purchase
                     ? User.Identity.Name
                     : "System";
 
-                if (master.TRANREFID <= 0)
+                short tranStateType = 0;
+                if (source.TRANREFID <= 0)
                 {
-                    TempData["ErrorMessage"] = "Please select a customer.";
-                    return RedirectToAction("PoForm", new { id = master.TRANLMID });
+                    TempData["ErrorMessage"] = "Source Sales Order has no customer.";
+                    return RedirectToAction("Index", "SalesOrder");
                 }
 
-                short tranStateType = 0;
-                var customer = db.CustomerMasters.FirstOrDefault(c => c.CATEID == master.TRANREFID);
+                var customer = db.CustomerMasters.FirstOrDefault(c => c.CATEID == source.TRANREFID);
                 if (customer != null)
                 {
                     master.TRANREFID = customer.CATEID;
@@ -246,6 +396,70 @@ namespace SSK_ERP.Controllers.Purchase
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "PurchaseOrderEdit")]
+        public ActionResult SavePoEdit(TransactionMaster master, string detailRowsJson)
+        {
+            try
+            {
+                if (master.TRANMID <= 0)
+                {
+                    TempData["ErrorMessage"] = "Invalid Purchase Order.";
+                    return RedirectToAction("Index");
+                }
+
+                var existing = db.TransactionMasters.FirstOrDefault(t => t.TRANMID == master.TRANMID && t.REGSTRID == PurchaseRegisterId);
+                if (existing == null)
+                {
+                    TempData["ErrorMessage"] = "Purchase Order not found.";
+                    return RedirectToAction("Index");
+                }
+
+                var details = string.IsNullOrWhiteSpace(detailRowsJson)
+                    ? new List<PurchaseOrderDetailRow>()
+                    : JsonConvert.DeserializeObject<List<PurchaseOrderDetailRow>>(detailRowsJson) ?? new List<PurchaseOrderDetailRow>();
+
+                details = details
+                    .Where(d => d != null && d.MaterialId > 0 && d.Qty > 0 && d.Rate >= 0)
+                    .ToList();
+
+                if (!details.Any())
+                {
+                    TempData["ErrorMessage"] = "Please add at least one detail row.";
+                    return RedirectToAction("PoEdit", new { id = master.TRANMID });
+                }
+
+                string userName = User != null && User.Identity != null && User.Identity.IsAuthenticated
+                    ? User.Identity.Name
+                    : "System";
+
+                existing.TRANDATE = master.TRANDATE;
+                existing.TRANTIME = DateTime.Now;
+                existing.DISPSTATUS = master.DISPSTATUS;
+                existing.TRANRMKS = master.TRANRMKS;
+                existing.LMUSRID = userName;
+                existing.PRCSDATE = DateTime.Now;
+
+                var existingDetails = db.TransactionDetails.Where(d => d.TRANMID == existing.TRANMID).ToList();
+                if (existingDetails.Any())
+                {
+                    db.TransactionDetails.RemoveRange(existingDetails);
+                    db.SaveChanges();
+                }
+
+                InsertDetails(existing, details);
+
+                TempData["SuccessMessage"] = "Purchase Order updated successfully.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         /// <summary>
         /// Returns material and material group data for the Purchase Order detail grid.
         /// Used by the PurchaseOrder/Form.cshtml script to populate dropdowns and auto-fill
@@ -306,6 +520,153 @@ namespace SSK_ERP.Controllers.Purchase
             catch (Exception ex)
             {
                 return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize(Roles = "PurchaseOrderPrint")]
+        public ActionResult Print(int id)
+        {
+            try
+            {
+                var master = db.TransactionMasters.FirstOrDefault(t => t.TRANMID == id && t.REGSTRID == PurchaseRegisterId);
+                if (master == null)
+                {
+                    TempData["ErrorMessage"] = "Purchase Order not found.";
+                    return RedirectToAction("Index");
+                }
+
+                var supplier = db.SupplierMasters.FirstOrDefault(s => s.CATEID == master.TRANREFID);
+                var customer = supplier == null
+                    ? db.CustomerMasters.FirstOrDefault(c => c.CATEID == master.TRANREFID)
+                    : null;
+
+                LocationMaster location = null;
+                StateMaster state = null;
+
+                int? locId = supplier != null ? (int?)supplier.LOCTID : customer != null ? (int?)customer.LOCTID : null;
+                int? stateId = supplier != null ? (int?)supplier.STATEID : customer != null ? (int?)customer.STATEID : null;
+
+                if (locId.HasValue)
+                {
+                    location = db.LocationMasters.FirstOrDefault(l => l.LOCTID == locId.Value);
+                }
+
+                if (stateId.HasValue)
+                {
+                    state = db.StateMasters.FirstOrDefault(s => s.STATEID == stateId.Value);
+                }
+
+                var details = db.TransactionDetails
+                    .Where(d => d.TRANMID == master.TRANMID)
+                    .OrderBy(d => d.TRANDID)
+                    .ToList();
+
+                var materialIds = details
+                    .Select(d => d.TRANDREFID)
+                    .Distinct()
+                    .ToList();
+
+                var materials = db.MaterialMasters
+                    .Where(m => materialIds.Contains(m.MTRLID))
+                    .ToDictionary(m => m.MTRLID, m => m);
+
+                var groupIds = materials.Values
+                    .Select(m => m.MTRLGID)
+                    .Distinct()
+                    .ToList();
+
+                var groups = db.MaterialGroupMasters
+                    .Where(g => groupIds.Contains(g.MTRLGID))
+                    .ToDictionary(g => g.MTRLGID, g => g);
+
+                var items = details
+                    .Select(d =>
+                    {
+                        MaterialMaster material;
+                        materials.TryGetValue(d.TRANDREFID, out material);
+
+                        MaterialGroupMaster group = null;
+                        if (material != null)
+                        {
+                            groups.TryGetValue(material.MTRLGID, out group);
+                        }
+
+                        return new PurchaseOrderPrintItemViewModel
+                        {
+                            MaterialName = d.TRANDREFNAME,
+                            MaterialGroupName = group != null ? group.MTRLGDESC : string.Empty,
+                            ProfitPercent = d.TRANDMTRLPRFT,
+                            Qty = d.TRANDQTY,
+                            Rate = d.TRANDRATE,
+                            ActualRate = d.TRANDARATE,
+                            Amount = d.TRANDNAMT
+                        };
+                    })
+                    .ToList();
+
+                var model = new PurchaseOrderPrintViewModel
+                {
+                    TRANMID = master.TRANMID,
+                    TRANNO = master.TRANNO,
+                    TRANDNO = master.TRANDNO,
+                    TRANREFNO = master.TRANREFNO,
+                    TRANDATE = master.TRANDATE,
+                    SupplierName = supplier != null ? supplier.CATENAME : customer != null ? customer.CATENAME : master.TRANREFNAME,
+                    SupplierCode = supplier != null ? supplier.CATECODE : customer != null ? customer.CATECODE : string.Empty,
+                    Address1 = supplier != null ? supplier.CATEADDR1 : customer != null ? customer.CATEADDR1 : string.Empty,
+                    Address2 = supplier != null ? supplier.CATEADDR2 : customer != null ? customer.CATEADDR2 : string.Empty,
+                    Address3 = supplier != null ? supplier.CATEADDR3 : customer != null ? customer.CATEADDR3 : string.Empty,
+                    Address4 = supplier != null ? supplier.CATEADDR4 : customer != null ? customer.CATEADDR4 : string.Empty,
+                    City = location != null ? location.LOCTDESC : string.Empty,
+                    Pincode = supplier != null ? supplier.CATEADDR5 : customer != null ? customer.CATEADDR5 : string.Empty,
+                    State = state != null ? state.STATEDESC : string.Empty,
+                    StateCode = state != null ? state.STATECODE : string.Empty,
+                    GstNo = supplier != null ? supplier.CATE_GST_NO : customer != null ? customer.CATE_GST_NO : string.Empty,
+                    GrossAmount = master.TRANGAMT,
+                    NetAmount = master.TRANNAMT,
+                    AmountInWords = ConvertAmountToWords(master.TRANNAMT),
+                    Items = items
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading Purchase Order: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Del(int id)
+        {
+            try
+            {
+                if (!User.IsInRole("PurchaseOrderDelete"))
+                {
+                    return Json("Access Denied: You do not have permission to delete records. Please contact your administrator.");
+                }
+
+                var existing = db.TransactionMasters.FirstOrDefault(t => t.TRANMID == id && t.REGSTRID == PurchaseRegisterId);
+                if (existing == null)
+                {
+                    return Json("Record not found");
+                }
+
+                var details = db.TransactionDetails.Where(d => d.TRANMID == existing.TRANMID).ToList();
+                if (details.Any())
+                {
+                    db.TransactionDetails.RemoveRange(details);
+                }
+
+                db.TransactionMasters.Remove(existing);
+                db.SaveChanges();
+
+                return Json("Successfully deleted");
+            }
+            catch (Exception ex)
+            {
+                return Json("Error: " + ex.Message);
             }
         }
 
@@ -509,6 +870,44 @@ namespace SSK_ERP.Controllers.Purchase
             }
 
             base.Dispose(disposing);
+        }
+
+        public class PurchaseOrderPrintItemViewModel
+        {
+            public string MaterialName { get; set; }
+            public string MaterialGroupName { get; set; }
+            public decimal ProfitPercent { get; set; }
+            public decimal Qty { get; set; }
+            public decimal Rate { get; set; }
+            public decimal ActualRate { get; set; }
+            public decimal Amount { get; set; }
+        }
+
+        public class PurchaseOrderPrintViewModel
+        {
+            public int TRANMID { get; set; }
+            public int TRANNO { get; set; }
+            public string TRANDNO { get; set; }
+            public string TRANREFNO { get; set; }
+            public DateTime TRANDATE { get; set; }
+
+            public string SupplierName { get; set; }
+            public string SupplierCode { get; set; }
+            public string Address1 { get; set; }
+            public string Address2 { get; set; }
+            public string Address3 { get; set; }
+            public string Address4 { get; set; }
+            public string City { get; set; }
+            public string Pincode { get; set; }
+            public string State { get; set; }
+            public string StateCode { get; set; }
+            public string GstNo { get; set; }
+
+            public decimal GrossAmount { get; set; }
+            public decimal NetAmount { get; set; }
+            public string AmountInWords { get; set; }
+
+            public List<PurchaseOrderPrintItemViewModel> Items { get; set; }
         }
     }
 }

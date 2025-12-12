@@ -452,7 +452,7 @@ namespace SSK_ERP.Controllers
                 TempData["ErrorMessage"] = "Error saving extracted data: " + ex.Message;
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "SalesOrder");
         }
     }
 }

@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Sales Order";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isPoFromSalesOrder = ViewBag.IsPoFromSalesOrder != null && (bool)ViewBag.IsPoFromSalesOrder;
 }
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -339,7 +340,7 @@
         <div class="form-header">
             <h1 class="form-title">
                 <i class="bi bi-receipt-cutoff"></i>
-                Sales Order
+                @(isPoFromSalesOrder ? "Purchase Order (From Sales Order)" : "Sales Order")
             </h1>
         </div>
 
@@ -383,10 +384,20 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Customer Name</label>
-                            @Html.DropDownListFor(m => m.TRANREFID,
-                                ViewBag.CustomerList as SelectList,
-                                "-- Select Customer --",
-                                new { @class = "form-control", id = "customerDropdown" })
+                            @if (isPoFromSalesOrder)
+                            {
+                                @Html.DropDownListFor(m => m.TRANREFID,
+                                    ViewBag.CustomerList as SelectList,
+                                    "-- Select Customer --",
+                                    new { @class = "form-control", id = "customerDropdown", disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(m => m.TRANREFID,
+                                    ViewBag.CustomerList as SelectList,
+                                    "-- Select Customer --",
+                                    new { @class = "form-control", id = "customerDropdown" })
+                            }
                         </div>
                         <div class="row so-address-row">
                             <div class="col-md-6 col-sm-6 col-6">
@@ -483,7 +494,7 @@
                             <tr>
                                 <td class="text-center so-row-index">1</td>
                                 <td>
-                                    <select class="form-control form-control-sm so-material select2">
+                                    <select class="form-control form-control-sm so-material select2" @(isPoFromSalesOrder ? "disabled=\"disabled\"" : "")>
                                         <option value="">Select Material</option>
                                     </select>
                                 </td>
@@ -674,6 +685,7 @@
             var soDetailsInitialized = false;
             var soDetailRowTemplate = null;
             var soTaxRefreshInProgress = false;
+            var isPoFromSalesOrder = @(isPoFromSalesOrder.ToString().ToLower());
 
             function initCustomerSelect() {
                 if (!$.fn.select2) {
@@ -687,6 +699,10 @@
                     var currentId = $ddl.val();
                     if (currentId && parseInt(currentId, 10) > 0) {
                         fetchCustomerDetails(currentId);
+                    }
+
+                    if (isPoFromSalesOrder) {
+                        $ddl.prop('disabled', true);
                     }
                 }
             }
@@ -897,6 +913,10 @@
             }
 
             $(document).on('click', '.btn-add-row', function () {
+                if (isPoFromSalesOrder) {
+                    // Do not allow adding new material rows when creating PO from Sales Order
+                    return;
+                }
                 var $newRow;
                 if (soDetailRowTemplate) {
                     $newRow = soDetailRowTemplate.clone();
@@ -922,6 +942,10 @@
             });
 
             $(document).on('click', '.btn-remove-row', function () {
+                if (isPoFromSalesOrder) {
+                    // Do not allow removing material rows when creating PO from Sales Order
+                    return;
+                }
                 var $rows = $('#soDetailsBody tr');
                 if ($rows.length > 1) {
                     $(this).closest('tr').remove();
@@ -935,6 +959,10 @@
 
             // Auto-fill material group, profit %, rate and actual rate when material changes
             $(document).on('change', '.so-material', function () {
+                if (isPoFromSalesOrder) {
+                    // For PO from Sales Order, material is locked; ignore change
+                    return;
+                }
                 var $row = $(this).closest('tr');
                 var matId = parseInt($(this).val() || '0', 10);
                 var groupId = soMaterialGroupMap[matId];

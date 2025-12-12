@@ -89,7 +89,7 @@
                     @Html.AntiForgeryToken()
                     @Html.Hidden("extractedText", (string)ViewBag.ExtractedText)
                     @Html.Hidden("originalFileName", (string)ViewBag.OriginalFileName)
-                    <button type="submit" class="btn btn-success" style="margin-top:15px;">
+                    <button type="submit" class="btn btn-success" style="margin-top:15px;" onclick="return confirm('Are you sure you want to save the extracted data?');">
                         <i class="fa fa-save"></i> Save
                     </button>
                 }
