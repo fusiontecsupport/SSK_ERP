@@ -21,17 +21,42 @@ namespace SSK_ERP.Controllers
     public class SalesOrderUploadController : Controller
     {
         private readonly ApplicationDbContext db = new ApplicationDbContext();
+        private const int SalesOrderRegisterId = 1;
+
+        private void PopulateCustomerList(int? selectedCustomerId = null)
+        {
+            var customerList = db.CustomerMasters
+                .Where(c => c.DISPSTATUS == 0)
+                .OrderBy(c => c.CATENAME)
+                .Select(c => new
+                {
+                    c.CATEID,
+                    c.CATENAME
+                })
+                .ToList();
+
+            ViewBag.CustomerList = new SelectList(customerList, "CATEID", "CATENAME", selectedCustomerId);
+        }
 
         [HttpGet]
         public ActionResult Index()
         {
+            PopulateCustomerList(null);
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Index(HttpPostedFileBase file)
+        public ActionResult Index(HttpPostedFileBase file, int? customerId)
         {
+            PopulateCustomerList(customerId);
+
+            if (!customerId.HasValue || customerId.Value <= 0)
+            {
+                TempData["ErrorMessage"] = "Please select a customer.";
+                return View();
+            }
+
             if (file == null || file.ContentLength == 0)
             {
                 TempData["ErrorMessage"] = "Please select a file to upload.";
@@ -49,28 +74,33 @@ namespace SSK_ERP.Controllers
 
             try
             {
-                file.InputStream.Position = 0;
-
-                using (var ms = new MemoryStream())
+                var uploadsDir = Server.MapPath("~/Uploads/SalesOrderPdfs");
+                if (!Directory.Exists(uploadsDir))
                 {
-                    file.InputStream.CopyTo(ms);
-                    ms.Position = 0;
+                    Directory.CreateDirectory(uploadsDir);
+                }
 
-                    using (var reader = new PdfReader(ms))
-                    using (var pdfDoc = new PdfDocument(reader))
+                var safeName = Path.GetFileNameWithoutExtension(file.FileName);
+                var ext = Path.GetExtension(file.FileName) ?? string.Empty;
+                var uniqueName = string.Format("{0}_{1:yyyyMMddHHmmssfff}{2}", safeName, DateTime.Now, ext);
+                var fullPath = Path.Combine(uploadsDir, uniqueName);
+
+                file.SaveAs(fullPath);
+
+                using (var reader = new PdfReader(fullPath))
+                using (var pdfDoc = new PdfDocument(reader))
+                {
+                    var sb = new StringBuilder();
+                    int totalPages = pdfDoc.GetNumberOfPages();
+
+                    for (int page = 1; page <= totalPages; page++)
                     {
-                        var sb = new StringBuilder();
-                        int totalPages = pdfDoc.GetNumberOfPages();
-
-                        for (int page = 1; page <= totalPages; page++)
-                        {
-                            var strategy = new SimpleTextExtractionStrategy();
-                            string pageText = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page), strategy);
-                            sb.AppendLine(pageText);
-                        }
-
-                        extractedText = sb.ToString();
+                        var strategy = new SimpleTextExtractionStrategy();
+                        string pageText = PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(page), strategy);
+                        sb.AppendLine(pageText);
                     }
+
+                    extractedText = sb.ToString();
                 }
             }
             catch (Exception)
@@ -81,6 +111,7 @@ namespace SSK_ERP.Controllers
 
             ViewBag.ExtractedText = extractedText;
             ViewBag.OriginalFileName = file.FileName;
+            ViewBag.SelectedCustomerId = customerId;
             TempData["SuccessMessage"] = "File uploaded and text extracted successfully.";
 
             return View();
@@ -88,7 +119,7 @@ namespace SSK_ERP.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveTemp(string extractedText, string originalFileName)
+        public ActionResult SaveTemp(string extractedText, string originalFileName, int? customerId)
         {
             if (string.IsNullOrWhiteSpace(extractedText))
             {
@@ -277,6 +308,71 @@ namespace SSK_ERP.Controllers
                     {
                         approvedDate = dtApp;
                     }
+                }
+
+                if (customerId.HasValue && customerId.Value > 0)
+                {
+                    var compyObj = Session["CompyId"] ?? Session["compyid"];
+                    int compyId = compyObj != null ? Convert.ToInt32(compyObj) : 1;
+
+                    string userName = User != null && User.Identity != null && User.Identity.IsAuthenticated
+                        ? User.Identity.Name
+                        : "System";
+
+                    short tranStateType = 0;
+                    var customer = db.CustomerMasters.FirstOrDefault(c => c.CATEID == customerId.Value);
+                    if (customer != null)
+                    {
+                        var state = db.StateMasters.FirstOrDefault(s => s.STATEID == customer.STATEID);
+                        if (state != null)
+                        {
+                            tranStateType = state.STATETYPE;
+                        }
+                    }
+
+                    var maxTranNo = db.TransactionMasters
+                        .Where(t => t.COMPYID == compyId && t.REGSTRID == SalesOrderRegisterId)
+                        .Select(t => (int?)t.TRANNO)
+                        .Max();
+
+                    int nextTranNo = (maxTranNo ?? 0) + 1;
+
+                    decimal gross = grossAmount ?? 0m;
+                    decimal net = totalAmount ?? gross;
+
+                    var master = new TransactionMaster
+                    {
+                        COMPYID = compyId,
+                        SDPTID = 0,
+                        REGSTRID = SalesOrderRegisterId,
+                        TRANBTYPE = 0,
+                        TRANDATE = poDate ?? DateTime.Today,
+                        TRANTIME = DateTime.Now,
+                        TRANNO = nextTranNo,
+                        TRANDNO = nextTranNo.ToString("D4"),
+                        TRANREFID = customerId.Value,
+                        TRANREFNAME = customer != null ? customer.CATENAME : (billingCustomerName ?? billingName ?? string.Empty),
+                        TRANSTATETYPE = tranStateType,
+                        TRANREFNO = string.IsNullOrWhiteSpace(poNumber) ? "-" : poNumber,
+                        TRANGAMT = gross,
+                        TRANCGSTAMT = 0m,
+                        TRANSGSTAMT = 0m,
+                        TRANIGSTAMT = 0m,
+                        TRANNAMT = net,
+                        TRANAMTWRDS = null,
+                        TRANLMID = 0,
+                        TRANPCOUNT = 0,
+                        TRANNARTN = null,
+                        TRANRMKS = null,
+                        EXPRTSTATUS = 0,
+                        CUSRID = userName,
+                        LMUSRID = userName,
+                        DISPSTATUS = 0,
+                        PRCSDATE = DateTime.Now
+                    };
+
+                    db.TransactionMasters.Add(master);
+                    db.SaveChanges();
                 }
 
                 // Insert structured header row (plus full text)

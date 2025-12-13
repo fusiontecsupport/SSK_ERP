@@ -49,6 +49,21 @@
                 Sales Order Upload
             </h1>
         </div>
+
+@section scripts {
+    <script type="text/javascript">
+        (function ($) {
+            $(document).ready(function () {
+                var $ddl = $('#customerId');
+                if ($ddl.length && $ddl.select2) {
+                    $ddl.select2({
+                        width: '100%'
+                    });
+                }
+            });
+        })(jQuery);
+    </script>
+}
         <div class="upload-body">
             @if (TempData["ErrorMessage"] != null)
             {
@@ -62,6 +77,15 @@
             @using (Html.BeginForm("Index", "SalesOrderUpload", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
                 @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label for="customerId">Customer</label>
+                    @Html.DropDownList("customerId",
+                        ViewBag.CustomerList as SelectList,
+                        "-- Select Customer --",
+                        new { @class = "form-control", id = "customerId" })
+                </div>
+
                 <div class="form-group">
                     <label for="file">Select File (PDF only)</label>
                     <input type="file" id="file" name="file" class="form-control" accept="application/pdf,.pdf" />
@@ -89,6 +113,7 @@
                     @Html.AntiForgeryToken()
                     @Html.Hidden("extractedText", (string)ViewBag.ExtractedText)
                     @Html.Hidden("originalFileName", (string)ViewBag.OriginalFileName)
+                    @Html.Hidden("customerId", (object)(ViewBag.SelectedCustomerId ?? null))
                     <button type="submit" class="btn btn-success" style="margin-top:15px;" onclick="return confirm('Are you sure you want to save the extracted data?');">
                         <i class="fa fa-save"></i> Save
                     </button>
