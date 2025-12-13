@@ -419,79 +419,106 @@
                                     new { @class = "form-control", id = "customerDropdown" })
                             }
                         </div>
-                        <div class="row so-address-row">
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="custAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="custAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
-                            </div>
-                        </div>
-                        <div class="row so-address-row">
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="custCity" class="form-control" placeholder="City" readonly="readonly" />
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="custState" class="form-control" placeholder="State" readonly="readonly" />
-                            </div>
-                        </div>
-                        <div class="row so-address-row">
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="custPincode" class="form-control" placeholder="Post code" readonly="readonly" />
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="custCountry" class="form-control" placeholder="Country" readonly="readonly" />
-                            </div>
-                        </div>
                         @Html.HiddenFor(m => m.TRANSTATETYPE, new { id = "stateTypeDropdown" })
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Billing Location</label>
-                            <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
+                    @if (isPoFromSalesOrder)
+                    {
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Billing Location</label>
+                                <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingCity" class="form-control" placeholder="City" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingState" class="form-control" placeholder="State" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <input type="text" id="billingAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+                    }
+                    else
+                    {
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Billing Location</label>
+                                <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingCity" class="form-control" placeholder="City" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingState" class="form-control" placeholder="State" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="billingCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <input type="text" id="billingCity" class="form-control" placeholder="City" readonly="readonly" />
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="billingPincode" class="form-control" placeholder="Post code" readonly="readonly" />
-                        </div>
-                    </div>
 
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Despatch Location</label>
-                            <input type="text" id="dispatchLocation" class="form-control" placeholder="Despatch Location" readonly="readonly" />
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Despatch Location</label>
+                                <input type="text" id="dispatchLocation" class="form-control" placeholder="Despatch Location" readonly="readonly" />
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="dispatchAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="dispatchAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="dispatchCity" class="form-control" placeholder="City" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="dispatchState" class="form-control" placeholder="State" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="row so-address-row">
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="dispatchPincode" class="form-control" placeholder="Post code" readonly="readonly" />
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-6">
+                                    <input type="text" id="dispatchCountry" class="form-control" placeholder="Country" readonly="readonly" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="row so-address-row">
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="dispatchAddr1" class="form-control" placeholder="Address Line 1" readonly="readonly" />
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="dispatchAddr2" class="form-control" placeholder="Address Line 2" readonly="readonly" />
-                            </div>
-                        </div>
-                        <div class="row so-address-row">
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="dispatchCity" class="form-control" placeholder="City" readonly="readonly" />
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="dispatchState" class="form-control" placeholder="State" readonly="readonly" />
-                            </div>
-                        </div>
-                        <div class="row so-address-row">
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="dispatchPincode" class="form-control" placeholder="Post code" readonly="readonly" />
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-6">
-                                <input type="text" id="dispatchCountry" class="form-control" placeholder="Country" readonly="readonly" />
-                            </div>
-                        </div>
-                    </div>
+                    }
                 </div>
 
                 <div class="section-title">@(isPoFromSalesOrder ? "Purchase Order Details" : "Customer Order Details")</div>
@@ -745,27 +772,28 @@
             }
 
             function clearCustomerDetails() {
-                $('#custAddr1, #custAddr2, #custCity, #custState, #custPincode, #custCountry').val('');
-                $('#billingLocation, #billingAddr1, #billingCity, #billingPincode').val('');
+                // Billing block
+                $('#billingLocation, #billingAddr1, #billingAddr2, #billingCity, #billingState, #billingPincode, #billingCountry').val('');
+
+                // Despatch block (Sales Order only)
                 $('#dispatchLocation, #dispatchAddr1, #dispatchAddr2, #dispatchCity, #dispatchState, #dispatchPincode, #dispatchCountry').val('');
+
                 $('#stateTypeDropdown').val('0');
             }
 
             function applyCustomerDetails(data) {
                 if (!data) return;
 
-                $('#custAddr1').val(data.Address1 || '');
-                $('#custAddr2').val(data.Address2 || '');
-                $('#custCity').val(data.City || '');
-                $('#custState').val(data.State || '');
-                $('#custPincode').val(data.Pincode || '');
-                $('#custCountry').val(data.Country || '');
-
+                // Billing block (used in both Sales Order and Purchase Order forms)
                 $('#billingLocation').val(data.City || '');
                 $('#billingAddr1').val(data.Address1 || '');
+                $('#billingAddr2').val(data.Address2 || '');
                 $('#billingCity').val(data.City || '');
+                $('#billingState').val(data.State || '');
                 $('#billingPincode').val(data.Pincode || '');
+                $('#billingCountry').val(data.Country || '');
 
+                // Despatch block (Sales Order only)
                 $('#dispatchLocation').val(data.City || '');
                 $('#dispatchAddr1').val(data.Address1 || '');
                 $('#dispatchAddr2').val(data.Address2 || '');
