@@ -1344,6 +1344,7 @@
                 }
 
                 var hasDetail = false;
+                var hasInvalidDetail = false;
 
                 $('#soDetailsBody tr').each(function () {
                     var $row = $(this);
@@ -1373,12 +1374,19 @@
 
                     if (rowValid) {
                         hasDetail = true;
+                    } else {
+                        hasInvalidDetail = true;
+                        isValid = false;
                     }
                 });
 
                 if (!hasDetail) {
                     alert('Please enter at least one detail row with Material, Qty and Actual Rate.');
                     isValid = false;
+                }
+
+                if (hasInvalidDetail) {
+                    alert('Please correct the highlighted detail rows (Material, Qty and Actual Rate).');
                 }
 
                 if (!isValid && missingFields.length) {
