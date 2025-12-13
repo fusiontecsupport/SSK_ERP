@@ -172,12 +172,9 @@ namespace SSK_ERP.Controllers
                 return View();
             }
 
-            ViewBag.ExtractedText = extractedText;
-            ViewBag.OriginalFileName = file.FileName;
-            ViewBag.SelectedCustomerId = customerId;
-            TempData["SuccessMessage"] = "File uploaded and text extracted successfully.";
-
-            return View();
+            // Directly process extracted text into TransactionMaster / TransactionDetail and temp tables,
+            // then redirect to SalesOrder index (single-step flow for the user).
+            return SaveTemp(extractedText, file.FileName, customerId);
         }
 
         [HttpPost]

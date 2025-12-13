@@ -39,6 +39,46 @@
         padding: 30px;
         background: white;
     }
+
+    .upload-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .upload-loading-box {
+        background: #ffffff;
+        padding: 20px 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+        font-size: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .upload-loading-spinner {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid #0d6efd;
+        border-top-color: transparent;
+        animation: upload-spin 0.8s linear infinite;
+    }
+
+    @@keyframes upload-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 
 <div class="upload-main-container">
@@ -51,15 +91,46 @@
         </div>
 
 @section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script type="text/javascript">
         (function ($) {
             $(document).ready(function () {
-                var $ddl = $('#customerId');
-                if ($ddl.length && $ddl.select2) {
-                    $ddl.select2({
-                        width: '100%'
-                    });
+                if (!$.fn.select2) {
+                    return;
                 }
+
+                var $ddl = $('#customerDropdown');
+                if ($ddl.length) {
+                    $ddl.select2({ width: '100%' });
+                }
+
+                var $overlay = $('#uploadLoadingOverlay');
+
+                $('#uploadForm').on('submit', function (e) {
+                    var customerVal = $ddl.val();
+                    var fileVal = $.trim($('#file').val());
+
+                    if (!customerVal) {
+                        alert('Please select a customer.');
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (!fileVal) {
+                        alert('Please select a PDF file to upload.');
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (!confirm('Are you sure you want to upload and process this file?')) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if ($overlay.length) {
+                        $overlay.show();
+                    }
+                });
             });
         })(jQuery);
     </script>
@@ -74,22 +145,28 @@
                 <div class="alert alert-success">@TempData["SuccessMessage"]</div>
             }
 
-            @using (Html.BeginForm("Index", "SalesOrderUpload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("Index", "SalesOrderUpload", FormMethod.Post, new { enctype = "multipart/form-data", id = "uploadForm" }))
             {
                 @Html.AntiForgeryToken()
 
-                <div class="form-group">
-                    <label for="customerId">Customer</label>
-                    @Html.DropDownList("customerId",
-                        ViewBag.CustomerList as SelectList,
-                        "-- Select Customer --",
-                        new { @class = "form-control", id = "customerId" })
-                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="customerDropdown">Customer</label>
+                            @Html.DropDownList("customerId",
+                                ViewBag.CustomerList as SelectList,
+                                "-- Select Customer --",
+                                new { @class = "form-control", id = "customerDropdown" })
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label for="file">Select File (PDF only)</label>
-                    <input type="file" id="file" name="file" class="form-control" accept="application/pdf,.pdf" />
-                    <small class="text-muted">Only PDF files (.pdf) are allowed.</small>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="file">Select File (PDF only)</label>
+                            <input type="file" id="file" name="file" class="form-control" accept="application/pdf,.pdf" />
+                            <small class="text-muted">Only PDF files (.pdf) are allowed.</small>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -102,23 +179,13 @@
                 </div>
             }
 
-            @if (ViewBag.ExtractedText != null)
-            {
-                <hr />
-                <h4>Extracted Text</h4>
-                <pre style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e2e6ea; max-height: 400px; overflow-y: auto;">@ViewBag.ExtractedText</pre>
-
-                using (Html.BeginForm("SaveTemp", "SalesOrderUpload", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-                    @Html.Hidden("extractedText", (string)ViewBag.ExtractedText)
-                    @Html.Hidden("originalFileName", (string)ViewBag.OriginalFileName)
-                    @Html.Hidden("customerId", (object)(ViewBag.SelectedCustomerId ?? null))
-                    <button type="submit" class="btn btn-success" style="margin-top:15px;" onclick="return confirm('Are you sure you want to save the extracted data?');">
-                        <i class="fa fa-save"></i> Save
-                    </button>
-                }
-            }
+            @* Extracted text and separate Save step removed: processing now happens entirely on Upload. *@
+        </div>
+    </div>
+    <div id="uploadLoadingOverlay" class="upload-loading-overlay">
+        <div class="upload-loading-box">
+            <div class="upload-loading-spinner"></div>
+            <span>Loading...</span>
         </div>
     </div>
 </div>
