@@ -4,6 +4,8 @@
     ViewBag.Title = "Sales Order";
     Layout = "~/Views/Shared/_Layout.cshtml";
     bool isPoFromSalesOrder = ViewBag.IsPoFromSalesOrder != null && (bool)ViewBag.IsPoFromSalesOrder;
+    string formControllerValue = ViewBag.FormController as string;
+    bool isPurchaseOrderForm = (formControllerValue ?? "SalesOrder") == "PurchaseOrder";
 }
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -378,30 +380,27 @@
                 <div class="section-title">
                     <i class="fa fa-info-circle"></i> @(isPoFromSalesOrder ? "Purchase Order" : "Sales Order")
                 </div>
+
+                <!-- Row 1: No / Date (2-column layout) -->
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>No</label>
                             @Html.HiddenFor(m => m.TRANDNO)
                             @Html.TextBoxFor(m => m.TRANNO, new { @class = "form-control", @readonly = "readonly" })
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Date</label>
                             @Html.TextBoxFor(m => m.TRANDATE, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Status</label>
-                            @Html.DropDownListFor(m => m.DISPSTATUS, ViewBag.StatusList as SelectList, new { @class = "form-control", id = "statusDropdown" })
-                        </div>
-                    </div>
                 </div>
 
+                <!-- Row 2: Customer/Supplier / Status (2-column layout) -->
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>@(isPoFromSalesOrder ? "Supplier Name" : "Customer Name")</label>
                             @if (isPoFromSalesOrder)
@@ -421,10 +420,20 @@
                         </div>
                         @Html.HiddenFor(m => m.TRANSTATETYPE, new { id = "stateTypeDropdown" })
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Status</label>
+                            @Html.DropDownListFor(m => m.DISPSTATUS, ViewBag.StatusList as SelectList, new { @class = "form-control", id = "statusDropdown" })
+                        </div>
+                    </div>
+                </div>
 
+                <!-- From Row 3: Location blocks -->
+                <div class="row">
                     @if (isPoFromSalesOrder)
                     {
-                        <div class="col-md-8">
+                        <!-- Purchase Order: Billing only, full width -->
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Billing Location</label>
                                 <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
@@ -457,7 +466,8 @@
                     }
                     else
                     {
-                        <div class="col-md-4">
+                        <!-- Sales Order: Billing and Despatch, 2-column layout -->
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Billing Location</label>
                                 <input type="text" id="billingLocation" class="form-control" placeholder="Billing Location" readonly="readonly" />
@@ -488,7 +498,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Despatch Location</label>
                                 <input type="text" id="dispatchLocation" class="form-control" placeholder="Despatch Location" readonly="readonly" />
@@ -565,8 +575,8 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-1">
                                         <input type="text" class="form-control form-control-sm so-amount text-end" readonly="readonly" />
-                                        <button type="button" class="btn btn-success btn-sm btn-add-row"><i class="fa fa-plus"></i></button>
-                                        <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm btn-add-row" @(isPurchaseOrderForm ? "style=\"display:none;\"" : "")><i class="fa fa-plus"></i></button>
+                                        <button type="button" class="btn btn-danger btn-sm btn-remove-row" @(isPurchaseOrderForm ? "style=\"display:none;\"" : "")><i class="fa fa-minus"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -733,6 +743,7 @@
             var soDetailRowTemplate = null;
             var soTaxRefreshInProgress = false;
             var isPoFromSalesOrder = @(isPoFromSalesOrder.ToString().ToLower());
+            var isPurchaseOrderForm = @(isPurchaseOrderForm.ToString().ToLower());
 
             function initCustomerSelect() {
                 if (!$.fn.select2) {
@@ -983,8 +994,8 @@
             }
 
             $(document).on('click', '.btn-add-row', function () {
-                if (isPoFromSalesOrder) {
-                    // Do not allow adding new material rows when creating PO from Sales Order
+                if (isPurchaseOrderForm) {
+                    // Do not allow adding new material rows on any Purchase Order form
                     return;
                 }
                 var $newRow;
@@ -1012,8 +1023,8 @@
             });
 
             $(document).on('click', '.btn-remove-row', function () {
-                if (isPoFromSalesOrder) {
-                    // Do not allow removing material rows when creating PO from Sales Order
+                if (isPurchaseOrderForm) {
+                    // Do not allow removing material rows on any Purchase Order form
                     return;
                 }
                 var $rows = $('#soDetailsBody tr');
@@ -1315,15 +1326,18 @@
 
                 var dateVal = $('#TRANDATE').val();
                 var customerVal = $('#customerDropdown').val();
+                var missingFields = [];
 
                 if (!dateVal) {
                     $('#TRANDATE').addClass('is-invalid');
                     isValid = false;
+                    missingFields.push(isPoFromSalesOrder ? 'PO Date' : 'Order Date');
                 }
 
                 if (!customerVal || customerVal === '' || customerVal === '0') {
                     $('#customerDropdown').addClass('is-invalid');
                     isValid = false;
+                    missingFields.push(isPoFromSalesOrder ? 'Supplier Name' : 'Customer Name');
                 }
 
                 var hasDetail = false;
@@ -1334,21 +1348,38 @@
                     var qty = parseFloat($row.find('.so-qty').val() || '0');
                     var actualRate = parseFloat($row.find('.so-actual-rate').val() || '0');
 
-                    if (materialId > 0 && qty > 0) {
+                    // Ignore completely empty rows
+                    if (!(materialId > 0 || qty > 0 || actualRate > 0)) {
+                        return;
+                    }
+
+                    var rowValid = true;
+
+                    if (materialId <= 0) {
+                        $row.find('.so-material').addClass('is-invalid');
+                        rowValid = false;
+                    }
+                    if (!(qty > 0)) {
+                        $row.find('.so-qty').addClass('is-invalid');
+                        rowValid = false;
+                    }
+                    if (!(actualRate > 0)) {
+                        $row.find('.so-actual-rate').addClass('is-invalid');
+                        rowValid = false;
+                    }
+
+                    if (rowValid) {
                         hasDetail = true;
-                    } else if (materialId > 0 || qty > 0 || actualRate > 0) {
-                        if (materialId <= 0) {
-                            $row.find('.so-material').addClass('is-invalid');
-                        }
-                        if (!(qty > 0)) {
-                            $row.find('.so-qty').addClass('is-invalid');
-                        }
                     }
                 });
 
                 if (!hasDetail) {
-                    alert('Please enter at least one detail row with Material and Qty.');
+                    alert('Please enter at least one detail row with Material, Qty and Actual Rate.');
                     isValid = false;
+                }
+
+                if (!isValid && missingFields.length) {
+                    alert('Please fill the following fields before saving:\n- ' + missingFields.join('\n- '));
                 }
 
                 return isValid;
