@@ -23,6 +23,69 @@ namespace SSK_ERP.Controllers
         private readonly ApplicationDbContext db = new ApplicationDbContext();
         private const int SalesOrderRegisterId = 1;
 
+        private string ConvertAmountToWords(decimal amount)
+        {
+            try
+            {
+                string[] ones = { "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine" };
+                string[] teens = { "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
+                string[] tens = { "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety" };
+
+                if (amount == 0) return "Zero Rupees Only";
+
+                int rupees = (int)amount;
+                int paise = (int)((amount - rupees) * 100);
+
+                string words = string.Empty;
+
+                if (rupees >= 10000000)
+                {
+                    words += ConvertNumberToWords(rupees / 10000000, ones, teens, tens) + " Crore ";
+                    rupees %= 10000000;
+                }
+                if (rupees >= 100000)
+                {
+                    words += ConvertNumberToWords(rupees / 100000, ones, teens, tens) + " Lakh ";
+                    rupees %= 100000;
+                }
+                if (rupees >= 1000)
+                {
+                    words += ConvertNumberToWords(rupees / 1000, ones, teens, tens) + " Thousand ";
+                    rupees %= 1000;
+                }
+                if (rupees >= 100)
+                {
+                    words += ConvertNumberToWords(rupees / 100, ones, teens, tens) + " Hundred ";
+                    rupees %= 100;
+                }
+                if (rupees > 0)
+                {
+                    words += ConvertNumberToWords(rupees, ones, teens, tens);
+                }
+
+                words = words.Trim() + " Rupees";
+
+                if (paise > 0)
+                {
+                    words += " and " + ConvertNumberToWords(paise, ones, teens, tens) + " Paise";
+                }
+
+                return words + " Only";
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private string ConvertNumberToWords(int number, string[] ones, string[] teens, string[] tens)
+        {
+            if (number < 10) return ones[number];
+            if (number < 20) return teens[number - 10];
+            if (number < 100) return tens[number / 10] + (number % 10 > 0 ? " " + ones[number % 10] : string.Empty);
+            return string.Empty;
+        }
+
         private void PopulateCustomerList(int? selectedCustomerId = null)
         {
             var customerList = db.CustomerMasters
@@ -132,6 +195,9 @@ namespace SSK_ERP.Controllers
                 var uploadedBy = (User != null && User.Identity != null && User.Identity.IsAuthenticated)
                     ? User.Identity.Name
                     : "Upload";
+
+                // Unique batch id for this upload so we can safely clean up temp rows later
+                var uploadBatchId = Guid.NewGuid();
 
                 string fullText = extractedText ?? string.Empty;
                 var allLines = fullText
@@ -384,8 +450,9 @@ namespace SSK_ERP.Controllers
 
                 int masterId = db.Database.SqlQuery<int>(
                     "INSERT INTO TransactionMasterTemp (UploadBatchId, OriginalPdfFileName, UploadedOn, UploadedBy, PoNumber, PoDate, BillingName, BillingCustomerName, BillingAddress, BillingGstin, SupplierName, TotalAmount, GrossAmount, CreditPeriodDays, ReceiveByDate, ApprovedDate, FullExtractedText) " +
-                    "VALUES (NEWID(), @p0, GETDATE(), @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14); " +
+                    "VALUES (@p0, @p1, GETDATE(), @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15); " +
                     "SELECT CAST(SCOPE_IDENTITY() AS INT);",
+                    uploadBatchId,
                     originalFileName ?? string.Empty,
                     uploadedBy,
                     DbValue(poNumber),
@@ -550,6 +617,36 @@ namespace SSK_ERP.Controllers
                     db.Database.ExecuteSqlCommand(
                         "EXEC PR_TRANSACTIONDETAILPDF_INSERT @Tranmid = @p0",
                         createdMaster.TRANMID);
+
+                    var totals = db.TransactionDetails
+                        .Where(d => d.TRANMID == createdMaster.TRANMID)
+                        .GroupBy(d => d.TRANMID)
+                        .Select(g => new
+                        {
+                            Gross = g.Sum(x => (decimal?)x.TRANDGAMT) ?? 0m,
+                            Cgst = g.Sum(x => (decimal?)x.TRANDCGSTAMT) ?? 0m,
+                            Sgst = g.Sum(x => (decimal?)x.TRANDSGSTAMT) ?? 0m,
+                            Igst = g.Sum(x => (decimal?)x.TRANDIGSTAMT) ?? 0m,
+                            Net = g.Sum(x => (decimal?)x.TRANDNAMT) ?? 0m
+                        })
+                        .FirstOrDefault();
+
+                    if (totals != null)
+                    {
+                        createdMaster.TRANGAMT = totals.Gross;
+                        createdMaster.TRANCGSTAMT = totals.Cgst;
+                        createdMaster.TRANSGSTAMT = totals.Sgst;
+                        createdMaster.TRANIGSTAMT = totals.Igst;
+                        createdMaster.TRANNAMT = totals.Net;
+                        createdMaster.TRANAMTWRDS = ConvertAmountToWords(totals.Net);
+
+                        db.SaveChanges();
+                    }
+
+                    db.Database.ExecuteSqlCommand(
+                        "DELETE FROM TransactionDetailTemp WHERE TransactionMasterTempId = @p0; DELETE FROM TransactionMasterTemp WHERE UploadBatchId = @p1;",
+                        masterId,
+                        uploadBatchId);
                 }
 
                 TempData["SuccessMessage"] = "Extracted data saved to temporary tables successfully.";
