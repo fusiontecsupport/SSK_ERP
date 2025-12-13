@@ -575,8 +575,11 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-1">
                                         <input type="text" class="form-control form-control-sm so-amount text-end" readonly="readonly" />
-                                        <button type="button" class="btn btn-success btn-sm btn-add-row" @(isPurchaseOrderForm ? "style=\"display:none;\"" : "")><i class="fa fa-plus"></i></button>
-                                        <button type="button" class="btn btn-danger btn-sm btn-remove-row" @(isPurchaseOrderForm ? "style=\"display:none;\"" : "")><i class="fa fa-minus"></i></button>
+                                        @if (!isPurchaseOrderForm)
+                                        {
+                                            <button type="button" class="btn btn-success btn-sm btn-add-row"><i class="fa fa-plus"></i></button>
+                                            <button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa fa-minus"></i></button>
+                                        }
                                     </div>
                                 </td>
                             </tr>
