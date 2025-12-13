@@ -310,6 +310,8 @@ namespace SSK_ERP.Controllers
                     }
                 }
 
+                TransactionMaster createdMaster = null;
+
                 if (customerId.HasValue && customerId.Value > 0)
                 {
                     var compyObj = Session["CompyId"] ?? Session["compyid"];
@@ -346,19 +348,19 @@ namespace SSK_ERP.Controllers
                         SDPTID = 0,
                         REGSTRID = SalesOrderRegisterId,
                         TRANBTYPE = 0,
-                        TRANDATE = poDate ?? DateTime.Today,
+                        TRANDATE = DateTime.Today,
                         TRANTIME = DateTime.Now,
                         TRANNO = nextTranNo,
                         TRANDNO = nextTranNo.ToString("D4"),
                         TRANREFID = customerId.Value,
                         TRANREFNAME = customer != null ? customer.CATENAME : (billingCustomerName ?? billingName ?? string.Empty),
                         TRANSTATETYPE = tranStateType,
-                        TRANREFNO = string.IsNullOrWhiteSpace(poNumber) ? "-" : poNumber,
-                        TRANGAMT = gross,
+                        TRANREFNO = "-",
+                        TRANGAMT = 0m,
                         TRANCGSTAMT = 0m,
                         TRANSGSTAMT = 0m,
                         TRANIGSTAMT = 0m,
-                        TRANNAMT = net,
+                        TRANNAMT = 0m,
                         TRANAMTWRDS = null,
                         TRANLMID = 0,
                         TRANPCOUNT = 0,
@@ -373,6 +375,8 @@ namespace SSK_ERP.Controllers
 
                     db.TransactionMasters.Add(master);
                     db.SaveChanges();
+
+                    createdMaster = master;
                 }
 
                 // Insert structured header row (plus full text)
@@ -539,6 +543,13 @@ namespace SSK_ERP.Controllers
 
                         lineNo++;
                     }
+                }
+
+                if (createdMaster != null)
+                {
+                    db.Database.ExecuteSqlCommand(
+                        "EXEC PR_TRANSACTIONDETAILPDF_INSERT @Tranmid = @p0",
+                        createdMaster.TRANMID);
                 }
 
                 TempData["SuccessMessage"] = "Extracted data saved to temporary tables successfully.";
